@@ -31,6 +31,7 @@ enum class KeyboardMode { LETTERS, SYMBOLS_1, SYMBOLS_2, EMOJI, CLIPBOARD }
  * @param longPress   Alternativas mostradas al mantener pulsada la tecla.
  * @param highlighted La tecla se dibuja resaltada (p. ej. shift activo).
  * @param repeatable  Si al mantenerla se repite la acción (borrado).
+ * @param icon        VectorDrawable opcional (0 = dibujar solo la etiqueta).
  */
 data class Key(
     val label: String,
@@ -39,7 +40,8 @@ data class Key(
     val weight: Float = 1f,
     val longPress: List<String> = emptyList(),
     val highlighted: Boolean = false,
-    val repeatable: Boolean = false
+    val repeatable: Boolean = false,
+    val icon: Int = 0
 )
 
 /**

@@ -1,5 +1,7 @@
 package com.atlas.keyboard.keyboard
 
+import com.atlas.keyboard.R
+
 /**
  * Construye las distribuciones QWERTY de letras (es/en) y las dos páginas de
  * símbolos del teclado. Las distribuciones son datos puros; el renderizado y la
@@ -50,7 +52,13 @@ object KeyboardLayouts {
                     Key(label = "=<", type = KeyType.SYMBOLS_PAGE, weight = 1.5f),
                     symbolKey("!"), symbolKey("*"), symbolKey("\""), symbolKey("'"),
                     symbolKey(":"), symbolKey(";"), symbolKey("?"),
-                    Key(label = "⌫", type = KeyType.DELETE, weight = 1.5f, repeatable = true)
+                    Key(
+                        label = "",
+                        type = KeyType.DELETE,
+                        weight = 1.5f,
+                        repeatable = true,
+                        icon = R.drawable.ic_key_backspace
+                    )
                 )
             )
         } else {
@@ -61,7 +69,13 @@ object KeyboardLayouts {
                     Key(label = "123", type = KeyType.SYMBOLS_PAGE, weight = 1.5f),
                     symbolKey("{"), symbolKey("}"), symbolKey("<"), symbolKey(">"),
                     symbolKey("^"), symbolKey("¡"), symbolKey("¿"),
-                    Key(label = "⌫", type = KeyType.DELETE, weight = 1.5f, repeatable = true)
+                    Key(
+                        label = "",
+                        type = KeyType.DELETE,
+                        weight = 1.5f,
+                        repeatable = true,
+                        icon = R.drawable.ic_key_backspace
+                    )
                 )
             )
         }
@@ -104,13 +118,21 @@ object KeyboardLayouts {
     private fun letterRowWithShift(chars: String, shift: ShiftState): KeyboardRow {
         val keys = mutableListOf<Key>()
         keys += Key(
-            label = if (shift == ShiftState.LOCKED) "⇪" else "⇧",
+            label = "",
             type = KeyType.SHIFT,
             weight = 1.5f,
-            highlighted = shift != ShiftState.OFF
+            highlighted = shift != ShiftState.OFF,
+            icon = if (shift == ShiftState.LOCKED) R.drawable.ic_key_capslock
+            else R.drawable.ic_key_shift
         )
         keys += chars.map { letterKey(it, shift, ACCENTS[it] ?: emptyList()) }
-        keys += Key(label = "⌫", type = KeyType.DELETE, weight = 1.5f, repeatable = true)
+        keys += Key(
+            label = "",
+            type = KeyType.DELETE,
+            weight = 1.5f,
+            repeatable = true,
+            icon = R.drawable.ic_key_backspace
+        )
         return KeyboardRow(keys)
     }
 
@@ -125,12 +147,27 @@ object KeyboardLayouts {
                 type = KeyType.MODE_SYMBOLS,
                 weight = 1.4f
             ),
-            Key(label = "😀", type = KeyType.EMOJI, weight = 1f),
-            Key(label = "📋", type = KeyType.CLIPBOARD, weight = 1f),
+            Key(
+                label = "",
+                type = KeyType.EMOJI,
+                weight = 1f,
+                icon = R.drawable.ic_key_emoji
+            ),
+            Key(
+                label = "",
+                type = KeyType.CLIPBOARD,
+                weight = 1f,
+                icon = R.drawable.ic_key_clipboard
+            ),
             Key(label = ",", weight = 1f, longPress = listOf(";", ":", "!", "¡")),
             Key(label = spaceLabel, output = " ", type = KeyType.SPACE, weight = 4.2f),
             Key(label = ".", weight = 1f, longPress = listOf(",", ";", ":", "…", "?", "¿", "-")),
-            Key(label = "↵", type = KeyType.ENTER, weight = 1.5f)
+            Key(
+                label = "",
+                type = KeyType.ENTER,
+                weight = 1.5f,
+                icon = R.drawable.ic_key_enter
+            )
         )
     )
 }

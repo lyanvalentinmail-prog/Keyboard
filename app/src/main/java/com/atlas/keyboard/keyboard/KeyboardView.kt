@@ -9,6 +9,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
@@ -16,6 +17,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
+import androidx.appcompat.content.res.AppCompatResources
 import com.atlas.keyboard.theme.KeyboardTheme
 import com.atlas.keyboard.theme.KeyboardThemes
 import com.atlas.keyboard.theme.readableTextOn
@@ -72,6 +74,9 @@ class KeyboardView @JvmOverloads constructor(
     }
     private val popupPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val popupHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    /** Caché de VectorDrawables de las teclas (se tiñen al dibujar). */
+    private val iconCache = HashMap<Int, Drawable>()
 
     // ------------------------------------------------------------------ //
     // Estado táctil
@@ -215,13 +220,19 @@ class KeyboardView @JvmOverloads constructor(
                 canvas.drawRoundRect(left, top, right, bottom, radius, radius, overlayPaint)
             }
 
-            // Etiqueta: tamaño grande para glifos simples, pequeño para textos.
-            val singleGlyph = key.label.codePointCount(0, key.label.length) <= 1
-            textPaint.textSize = (if (singleGlyph) theme.keyTextSizeSp else theme.specialKeyTextSizeSp) * density
-            textPaint.color = textColor
-            val cx = (left + right) / 2f
-            val cy = (top + bottom) / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
-            canvas.drawText(key.label, cx, cy, textPaint)
+            // Icono vectorial o etiqueta de texto.
+            if (key.icon != 0) {
+                drawKeyIcon(canvas, key.icon, textColor, left, top, right, bottom)
+            } else {
+                // Etiqueta: tamaño grande para glifos simples, pequeño para textos.
+                val singleGlyph = key.label.codePointCount(0, key.label.length) <= 1
+                textPaint.textSize =
+                    (if (singleGlyph) theme.keyTextSizeSp else theme.specialKeyTextSizeSp) * density
+                textPaint.color = textColor
+                val cx = (left + right) / 2f
+                val cy = (top + bottom) / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
+                canvas.drawText(key.label, cx, cy, textPaint)
+            }
         }
 
         // Vista previa del carácter encima de la tecla pulsada.
@@ -235,6 +246,37 @@ class KeyboardView @JvmOverloads constructor(
     private fun isSpecial(type: KeyType): Boolean = when (type) {
         KeyType.CHARACTER, KeyType.SPACE -> false
         else -> true
+    }
+
+    private fun getIcon(resId: Int): Drawable? {
+        iconCache[resId]?.let { return it }
+        val drawable = AppCompatResources.getDrawable(context, resId) ?: return null
+        iconCache[resId] = drawable
+        return drawable
+    }
+
+    /** Dibuja un VectorDrawable centrado en la tecla, teñido con [tint]. */
+    private fun drawKeyIcon(
+        canvas: Canvas, resId: Int, tint: Int,
+        left: Float, top: Float, right: Float, bottom: Float
+    ) {
+        val drawable = getIcon(resId) ?: return
+        val sizeDp = when (resId) {
+            // Iconos de la fila inferior, ligeramente más pequeños.
+            com.atlas.keyboard.R.drawable.ic_key_emoji,
+            com.atlas.keyboard.R.drawable.ic_key_clipboard,
+            com.atlas.keyboard.R.drawable.ic_key_enter -> 20f
+            else -> 22f
+        }
+        val half = sizeDp * density / 2f
+        val cx = (left + right) / 2f
+        val cy = (top + bottom) / 2f
+        drawable.setTint(tint)
+        drawable.setBounds(
+            (cx - half).toInt(), (cy - half).toInt(),
+            (cx + half).toInt(), (cy + half).toInt()
+        )
+        drawable.draw(canvas)
     }
 
     private fun drawPreviewBubble(canvas: Canvas, kr: KeyRect, radius: Float) {

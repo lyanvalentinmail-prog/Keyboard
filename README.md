@@ -16,6 +16,7 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 
 ### Teclado
 - Distribución QWERTY con **Ñ** (español) y QWERTY en inglés.
+- Teclas especiales con **iconos vectoriales** (⇧ ⇪ ⌫ ↵ 😀 📋) teñidos según el tema activo.
 - Mayúsculas, minúsculas, bloqueo de mayúsculas (doble toque o pulsación larga en `⇧`).
 - Retroceso con **repetición** al mantener pulsado (`⌫`).
 - Intro/inteligente: ejecuta la acción del campo (buscar, enviar, ir…) o inserta salto de línea.
@@ -190,7 +191,12 @@ Abre la app **Atlas Keyboard**:
 │           ├── raw/dictionary_es.txt        # Diccionario español (local)
 │           ├── raw/dictionary_en.txt        # Diccionario inglés (local)
 │           ├── layout/activity_settings.xml
+│           ├── drawable/                    # VectorDrawables: icono y teclas
+│           ├── mipmap-anydpi-v26/           # Icono adaptativo (API 26+)
+│           ├── mipmap-*/                    # PNG del icono generados (API 24-25)
 │           └── values/…
+├── tools/
+│   └── generate_launcher_icons.py           # Regenera los PNG del icono
 └── gradlew / gradlew.bat
 ```
 
