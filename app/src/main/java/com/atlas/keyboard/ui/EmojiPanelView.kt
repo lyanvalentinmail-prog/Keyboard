@@ -9,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.BaseAdapter
-import android.widget.GridView
 import android.widget.HorizontalScrollView
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.GridView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import com.atlas.keyboard.R
 import com.atlas.keyboard.theme.KeyboardTheme
 import com.atlas.keyboard.theme.KeyboardThemes
@@ -34,10 +37,10 @@ class EmojiPanelView @JvmOverloads constructor(
 
     var listener: Listener? = null
 
-    private data class Category(val name: String, val icon: String, val emojis: List<String>)
+    private data class Category(val name: String, val iconRes: Int, val emojis: List<String>)
 
     private val categories = listOf(
-        Category("Caritas", "😀", listOf(
+        Category("Caritas", R.drawable.ic_key_emoji, listOf(
             "😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😗","😚","😙",
             "🥲","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤫","🤔","🫡","🤐","🤨","😐","😑","😶","😏","😒","🙄",
             "😬","🤥","😌","😔","😪","🤤","😴","😷","🤒","🤕","🤢","🤮","🥵","🥶","🥴","😵","🤯","🤠","🥳","🥸",
@@ -45,13 +48,13 @@ class EmojiPanelView @JvmOverloads constructor(
             "😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈","👿","💀","☠️","💩","🤡","👹",
             "👺","👻","👽","👾","🤖"
         )),
-        Category("Gestos", "👋", listOf(
+        Category("Gestos", R.drawable.ic_cat_gestures, listOf(
             "👋","🤚","🖐️","✋","🖖","🫱","🫲","🫳","🫴","👌","🤌","🤏","✌️","🤞","🫰","🤟","🤘","🤙","👈","👉",
             "👆","🖕","👇","☝️","🫵","👍","👎","✊","👊","🤛","🤜","👏","🙌","🫶","👐","🤲","🤝","🙏","✍️","💅",
             "🤳","💪","🦾","🦿","🦵","🦶","👂","🦻","👃","🧠","👀","👁️","👅","👄","🫦","👶","🧒","👦","👧","🧑",
             "👱","👨","🧔","👩","🧓","👴","👵","🙍","🙎","🙅","🙆","💁","🙋","🧏","🙇","🤦","🤷","💆","💇","🚶","🧍"
         )),
-        Category("Animales", "🐻", listOf(
+        Category("Animales", R.drawable.ic_cat_animals, listOf(
             "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🙈","🙉","🙊","🐒","🐔",
             "🐧","🐦","🐤","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐌","🐞","🐜","🪰","🪲",
             "🦟","🕷️","🐢","🐍","🦎","🦂","🐙","🦑","🦐","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🐊","🐅",
@@ -59,21 +62,21 @@ class EmojiPanelView @JvmOverloads constructor(
             "🐐","🦌","🐕","🐩","🦮","🐈","🐓","🦃","🦚","🦜","🦢","🦩","🕊️","🐇","🦝","🦨","🦦","🦥","🐿️","🦔",
             "🌵","🎄","🌲","🌳","🌴","🌱","🌿","☘️","🍀","🌾","🌺","🌻","🌹","🥀","🌷","🌼","🌸","💐","🍄","🌍"
         )),
-        Category("Comida", "🍎", listOf(
+        Category("Comida", R.drawable.ic_cat_food, listOf(
             "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑",
             "🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🫒","🧄","🧅","🥔","🍠","🥐","🍞","🥖","🥨","🥯","🧀","🥚","🍳",
             "🧈","🥞","🧇","🥓","🥩","🍗","🍖","🌭","🍔","🍟","🍕","🫓","🥪","🥙","🧆","🌮","🌯","🫔","🥗","🥘",
             "🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦",
             "🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🧋","☕","🍵","🧃","🥤","🧉","🍺","🍻","🥂","🍷","🥃"
         )),
-        Category("Deportes", "⚽", listOf(
+        Category("Deportes", R.drawable.ic_cat_sports, listOf(
             "⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳",
             "🪁","🏹","🎣","🤿","🥊","🥋","🎽","🛹","🛼","🛷","⛸️","🥌","🎿","⛷️","🏂","🪂","🏋️","🤼","🤸","⛹️",
             "🤺","🤾","🏌️","🏇","🧘","🏄","🏊","🤽","🚣","🧗","🚵","🚴","🏆","🥇","🥈","🥉","🏅","🎖️","🏵️","🎗️",
             "🎫","🎟️","🎪","🤹","🎭","🩰","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🎸","🎻","🎲","♟️",
             "🎯","🎳","🎮","🎰","🧩","🪄","🀄","🎴","🃏","🎽"
         )),
-        Category("Viajes", "✈️", listOf(
+        Category("Viajes", R.drawable.ic_cat_travel, listOf(
             "🚗","🚕","🚙","🚌","🚎","🏎️","🚓","🚑","🚒","🚐","🛻","🚚","🚛","🚜","🛴","🚲","🛵","🏍️","🛺","🚨",
             "🚔","🚍","🚘","🚖","🚡","🚠","🚟","🚃","🚋","🚞","🚝","🚄","🚅","🚈","🚂","🚆","🚇","🚊","🚉","✈️",
             "🛫","🛬","🛩️","💺","🛰️","🚀","🛸","🚁","🛶","⛵","🚤","🛥️","🛳️","⛴️","🚢","⚓","⛽","🚧","🚦","🚥",
@@ -81,7 +84,7 @@ class EmojiPanelView @JvmOverloads constructor(
             "🏕️","⛺","🏠","🏡","🏘️","🏗️","🏭","🏢","🏬","🏣","🏤","🏥","🏦","🏨","🏪","🏫","🏩","💒","🏛️","⛪",
             "🕌","🛕","🕍","🕋","⛩️","🛤️","🛣️","🗾","🎑","🌆"
         )),
-        Category("Objetos", "💡", listOf(
+        Category("Objetos", R.drawable.ic_cat_objects, listOf(
             "⌚","📱","📲","💻","⌨️","🖥️","🖨️","🖱️","🕹️","💽","💾","💿","📀","📼","📷","📸","📹","🎥","📽️","📞",
             "☎️","📟","📠","📺","📻","🎙️","🎚️","🎛️","⏱️","⏲️","⏰","🕰️","⌛","⏳","📡","🔋","🪫","🔌","💡","🔦",
             "🕯️","🪔","🧯","💸","💵","💴","💶","💷","🪙","💰","💳","💎","⚖️","🪜","🧰","🪛","🔧","🔨","⚒️","🛠️",
@@ -93,7 +96,7 @@ class EmojiPanelView @JvmOverloads constructor(
             "📔","📒","📕","📗","📘","📙","📚","📖","🔖","🧷","🔗","📎","📐","📏","🧮","📌","📍","✂️","🖊️","✒️",
             "🖌️","🖍️","📝","✏️","🔍","🔎","🔏","🔐","🔒","🔓"
         )),
-        Category("Símbolos", "🔣", listOf(
+        Category("Símbolos", R.drawable.ic_cat_symbols, listOf(
             "❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","☮️",
             "✝️","☪️","🕉️","☸️","✡️","🔯","🕎","☯️","☦️","⛎","♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒",
             "♓","🆔","⚛️","☢️","☣️","📴","📳","✴️","🆚","💮","🉐","🈴","🈵","🈲","🅰️","🅱️","🆎","🆑","🅾️","🆘",
@@ -110,7 +113,7 @@ class EmojiPanelView @JvmOverloads constructor(
 
     private var theme: KeyboardTheme = KeyboardThemes.DARK
     private val density = resources.displayMetrics.density
-    private val tabViews = mutableListOf<TextView>()
+    private val tabViews = mutableListOf<ImageButton>()
     private var currentCategory = 0
 
     private val gridAdapter = object : BaseAdapter() {
@@ -176,10 +179,11 @@ class EmojiPanelView @JvmOverloads constructor(
 
         val tabsRow = LinearLayout(context).apply { orientation = HORIZONTAL }
         categories.forEachIndexed { index, category ->
-            val tab = TextView(context).apply {
-                text = category.icon
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
-                gravity = Gravity.CENTER
+            val tab = ImageButton(context).apply {
+                setImageDrawable(AppCompatResources.getDrawable(context, category.iconRes))
+                contentDescription = category.name
+                scaleType = ImageView.ScaleType.CENTER
+                background = null
                 setOnClickListener { setCategory(index) }
             }
             val size = (48 * density).toInt()
@@ -211,11 +215,15 @@ class EmojiPanelView @JvmOverloads constructor(
     }
 
     private fun refreshTabColors() {
-        tabViews.forEachIndexed { index, tv ->
+        tabViews.forEachIndexed { index, tab ->
             if (index == currentCategory) {
-                tv.setBackgroundColor(withAlpha(theme.accentColor, 0.2f))
+                tab.setColorFilter(theme.accentColor)
+                tab.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                tab.alpha = 1f
             } else {
-                tv.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                tab.setColorFilter(theme.specialKeyText)
+                tab.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                tab.alpha = 0.55f
             }
         }
     }

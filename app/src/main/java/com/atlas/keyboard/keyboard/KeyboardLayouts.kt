@@ -145,22 +145,10 @@ object KeyboardLayouts {
             Key(
                 label = if (inSymbols) "ABC" else "?123",
                 type = KeyType.MODE_SYMBOLS,
-                weight = 1.4f
-            ),
-            Key(
-                label = "",
-                type = KeyType.EMOJI,
-                weight = 1f,
-                icon = R.drawable.ic_key_emoji
-            ),
-            Key(
-                label = "",
-                type = KeyType.CLIPBOARD,
-                weight = 1f,
-                icon = R.drawable.ic_key_clipboard
+                weight = 1.5f
             ),
             Key(label = ",", weight = 1f, longPress = listOf(";", ":", "!", "¡")),
-            Key(label = spaceLabel, output = " ", type = KeyType.SPACE, weight = 4.2f),
+            Key(label = spaceLabel, output = " ", type = KeyType.SPACE, weight = 5f),
             Key(label = ".", weight = 1f, longPress = listOf(",", ";", ":", "…", "?", "¿", "-")),
             Key(
                 label = "",
@@ -170,4 +158,5 @@ object KeyboardLayouts {
             )
         )
     )
+    // Suma de pesos: 1.5 + 1 + 5 + 1 + 1.5 = 10 → alineada con las filas de letras.
 }

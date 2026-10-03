@@ -50,6 +50,19 @@
             android:textSize="12sp"
             android:alpha="0.6" />
 
+        <!-- Vista previa en vivo del teclado con el tema elegido -->
+        <TextView
+            style="@style/AtlasSmallLabel"
+            android:layout_marginTop="4dp"
+            android:text="@string/preview_caption" />
+        <com.atlas.keyboard.ui.ThemePreviewView
+            android:id="@+id/keyboard_preview"
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:layout_marginBottom="4dp" />
+
+        <View style="@style/AtlasDivider" />
+
         <!-- ===== Escritura ===== -->
         <TextView
             style="@style/AtlasSectionHeader"
@@ -111,6 +124,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
+        <View style="@style/AtlasDivider" />
 
         <!-- ===== Apariencia ===== -->
         <TextView
@@ -258,6 +273,8 @@
             android:layout_height="wrap_content"
             android:text="@string/reset_customization" />
 
+        <View style="@style/AtlasDivider" />
+
         <!-- ===== Idioma ===== -->
         <TextView
             style="@style/AtlasSectionHeader"
@@ -281,6 +298,8 @@
                 android:text="@string/language_en" />
         </RadioGroup>
 
+        <View style="@style/AtlasDivider" />
+
         <!-- ===== Portapapeles ===== -->
         <TextView
             style="@style/AtlasSectionHeader"
@@ -297,6 +316,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/clear_clipboard" />
+
+        <View style="@style/AtlasDivider" />
 
         <!-- ===== Privacidad ===== -->
         <TextView

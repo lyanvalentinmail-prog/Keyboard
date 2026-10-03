@@ -65,4 +65,7 @@
     <string name="toolbar_clipboard_desc">Portapapeles</string>
     <string name="toolbar_font_desc">Fuentes de texto</string>
     <string name="text_styles_title">Fuentes</string>
+
+    <!-- Vista previa en Ajustes -->
+    <string name="preview_caption">Vista previa del teclado</string>
 </resources>

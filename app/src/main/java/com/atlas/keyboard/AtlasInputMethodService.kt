@@ -503,9 +503,27 @@ class AtlasInputMethodService : InputMethodService() {
         composingActive = false
     }
 
+    /** Marca de tiempo del último espacio simple, para el atajo doble espacio → ". ". */
+    private var lastSpaceCommitAt: Long = 0L
+
     private fun handleSpace(ic: InputConnection) {
         commitCurrentWord(ic, applyAutoCorrect = true)
-        ic.commitText(" ", 1)
+        val now = SystemClock.uptimeMillis()
+        val before = ic.getTextBeforeCursor(3, 0)?.toString() ?: ""
+        val doubleSpace = settings.autoCorrect && textFeaturesAllowed &&
+                now - lastSpaceCommitAt <= DOUBLE_SPACE_WINDOW_MS &&
+                before.length >= 2 &&
+                before[before.length - 1] == ' ' &&
+                before[before.length - 2].isLetter()
+        if (doubleSpace) {
+            // Doble espacio rápido tras una palabra: sustituye el espacio por punto y espacio.
+            ic.deleteSurroundingText(1, 0)
+            ic.commitText(". ", 1)
+            lastSpaceCommitAt = 0L
+        } else {
+            ic.commitText(" ", 1)
+            lastSpaceCommitAt = now
+        }
         evaluateAutoCaps()
         updateSuggestions()
     }
@@ -796,6 +814,8 @@ class AtlasInputMethodService : InputMethodService() {
 
     companion object {
         private const val TOOLBAR_HEIGHT_DP = 40
+        /** Ventana (ms) entre dos espacios para convertirlos en punto y espacio. */
+        private const val DOUBLE_SPACE_WINDOW_MS = 600L
         private const val SUGGESTION_STRIP_HEIGHT_DP = 44
     }
 }

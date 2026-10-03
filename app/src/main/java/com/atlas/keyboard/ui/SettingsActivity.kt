@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.LinearLayout
@@ -21,6 +22,8 @@ import com.atlas.keyboard.data.AtlasSettings
 import com.atlas.keyboard.data.ClipboardRepository
 import com.atlas.keyboard.data.SettingsRepository
 import com.atlas.keyboard.theme.KeyboardThemes
+import com.atlas.keyboard.theme.customized
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -35,6 +38,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var clipboardRepo: ClipboardRepository
     private var initializing = true
     private var current = AtlasSettings()
+    /** Última terna de colores personalizados aplicada, para no recrear los swatches en cada emisión. */
+    private var lastColors: Triple<Int?, Int?, Int?>? = null
 
     private val density by lazy { resources.displayMetrics.density }
 
@@ -71,11 +76,42 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.clipboard_cleared, Toast.LENGTH_SHORT).show()
         }
 
+        // La vista previa se dibuja con esquinas redondeadas sobre el layout.
+        findViewById<ThemePreviewView>(R.id.keyboard_preview).apply {
+            clipToOutline = true
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: android.graphics.Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, 12f * density)
+                }
+            }
+        }
+
         lifecycleScope.launch {
             current = repo.settingsFlow.first()
             bindInitialState(current)
             initializing = false
             wireListeners()
+        }
+
+        // Vista previa en vivo: cualquier cambio de tema/color/radio/tamaño se
+        // refleja al instante en la miniatura del teclado.
+        lifecycleScope.launch {
+            repo.settingsFlow.collect { s ->
+                current = s
+                val theme = KeyboardThemes.byId(s.themeId).customized(
+                    background = s.customBackground,
+                    keyColor = s.customKeyColor,
+                    textColor = s.customTextColor,
+                    radiusDp = s.customRadiusDp,
+                    textSizeSp = s.customTextSizeSp
+                )
+                findViewById<ThemePreviewView>(R.id.keyboard_preview).setTheme(theme)
+                val colors = Triple(s.customBackground, s.customKeyColor, s.customTextColor)
+                if (colors != lastColors) {
+                    lastColors = colors
+                    if (!initializing) rebuildSwatches(s)
+                }
+            }
         }
     }
 
@@ -132,6 +168,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun rebuildSwatches(s: AtlasSettings) {
+        lastColors = Triple(s.customBackground, s.customKeyColor, s.customTextColor)
         buildSwatchRow(R.id.row_bg_colors, s.customBackground) { color ->
             lifecycleScope.launch { repo.setCustomBackground(color) }
             current = current.copy(customBackground = color)

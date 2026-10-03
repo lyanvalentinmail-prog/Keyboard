@@ -16,8 +16,9 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 
 ### Teclado
 - Distribución QWERTY con **Ñ** (español) y QWERTY en inglés.
-- Teclas especiales con **iconos vectoriales** (⇧ ⇪ ⌫ ↵ 😀 📋) teñidos según el tema activo.
-- **Barra de herramientas superior** con accesos directos: ⚙ configuración, 😀 emojis, 📋 portapapeles y 🅰 fuentes de texto.
+- Teclas especiales con **iconos vectoriales** (⇧ ⇪ ⌫ ↵) teñidos según el tema activo.
+- **Barra de herramientas superior** con accesos directos: ⚙ configuración, 😀 emojis, 📋 portapapeles y 🅰 fuentes de texto. La fila inferior queda limpia (`?123 , ␣ . ↵`), alineada con las filas de letras.
+- **Doble espacio → punto y espacio**: al pulsar espacio dos veces seguidas tras una palabra se inserta `. ` automáticamente (como Gboard) y se activan las mayúsculas.
 - **Fuentes de texto estilizadas** (Unicode, sin red): Negrita, Cursiva, Negrita cursiva, Monoespaciada, Manuscrita, Gótica, Doble trazo, Circulares y Cuadrados — se insertan mientras escribes en cualquier app, y las sugerencias/autocorrección siguen funcionando sobre el texto estilizado.
 - Mayúsculas, minúsculas, bloqueo de mayúsculas (doble toque o pulsación larga en `⇧`).
 - Retroceso con **repetición** al mantener pulsado (`⌫`).
@@ -36,10 +37,11 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 
 ### Emojis
 - Panel organizado en **8 categorías** (caritas, gestos, animales, comida, deportes, viajes, objetos, símbolos) con más de 1000 emojis.
-- Se abre con la tecla `😀` y se vuelve al teclado con `ABC`.
+- Las pestañas de categoría usan **iconos vectoriales SVG** teñidos según el tema; la pestaña activa se resalta con el color de acento.
+- Se abre desde el icono `😀` de la barra superior y se vuelve al teclado con `ABC`.
 
 ### Portapapeles
-- Historial local de los últimos 25 textos copiados (accesible desde la tecla `📋`).
+- Historial local de los últimos 25 textos copiados (accesible desde el icono `📋` de la barra superior).
 - Toca un elemento para **insertarlo**, `✕` para eliminarlo o **Borrar todo** para vaciar el historial.
 - Respeta el contenido marcado como sensible en Android 13+.
 
@@ -49,10 +51,12 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 - Todo se guarda con **DataStore** y se aplica en caliente.
 
 ### Ajustes (Activity independiente)
+- **Vista previa en vivo** del teclado: una miniatura se redibuja al instante con cada cambio de tema, color, radio o tamaño de texto.
 - Vibrar al pulsar + intensidad de vibración.
 - Sonido al pulsar.
 - Mayúsculas automáticas, autocorrección, sugerencias.
 - Fila numérica, altura del teclado, tema, idioma.
+- Secciones separadas visualmente con divisores.
 - Sección de **privacidad** que explica el procesamiento 100 % local.
 
 ---
@@ -191,6 +195,7 @@ Abre la app **Atlas Keyboard**:
 │       │       ├── EmojiPanelView.kt        # Panel de emojis por categorías
 │       │       ├── ClipboardPanelView.kt    # Panel del portapapeles
 │       │       ├── TextStylePanelView.kt    # Panel de fuentes de texto
+│       │       ├── ThemePreviewView.kt      # Miniatura del teclado en Ajustes
 │       │       └── SettingsActivity.kt      # Configuración
 │       └── res/
 │           ├── xml/method.xml               # Declaración del método de entrada

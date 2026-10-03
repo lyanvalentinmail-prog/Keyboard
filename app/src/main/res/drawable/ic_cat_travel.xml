@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Categoría de emojis: viajes (avión Material flight). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M21.5,16v-2l-8,-5L13.5,3.5c0,-0.83 -0.67,-1.5 -1.5,-1.5s-1.5,0.67 -1.5,1.5L10.5,9l-8,5v2l8,-2.5L10.5,19l-2,1.5L8.5,22l3.5,-1 3.5,1v-1.5L13.5,19v-5.5l8,2.5z" />
+</vector>

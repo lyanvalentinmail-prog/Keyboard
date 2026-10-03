@@ -185,6 +185,8 @@ class KeyboardView @JvmOverloads constructor(
         val topGap = 2.5f * density
         val bottomGap = 1.5f * density
         val radius = theme.cornerRadiusDp * density
+        // Con fila numérica (5 filas) las teclas son más bajas: reduce el texto.
+        val rowScale = if (keyboard.rows.size >= 5) 0.88f else 1f
 
         for (i in keyRects.indices) {
             val kr = keyRects[i]
@@ -227,7 +229,8 @@ class KeyboardView @JvmOverloads constructor(
                 // Etiqueta: tamaño grande para glifos simples, pequeño para textos.
                 val singleGlyph = key.label.codePointCount(0, key.label.length) <= 1
                 textPaint.textSize =
-                    (if (singleGlyph) theme.keyTextSizeSp else theme.specialKeyTextSizeSp) * density
+                    (if (singleGlyph) theme.keyTextSizeSp else theme.specialKeyTextSizeSp) *
+                            density * rowScale
                 textPaint.color = textColor
                 val cx = (left + right) / 2f
                 val cy = (top + bottom) / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
