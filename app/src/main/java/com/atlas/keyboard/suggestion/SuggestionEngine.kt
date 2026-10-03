@@ -1,6 +1,7 @@
 package com.atlas.keyboard.suggestion
 
 import android.content.Context
+import com.atlas.keyboard.textstyle.TextStyles
 import java.text.Normalizer
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -105,8 +106,21 @@ class SuggestionEngine {
         return dict.normalized.contains(norm)
     }
 
+    /**
+     * Normaliza para comparar: convierte caracteres estilizados (fuente activa)
+     * a su ASCII equivalente y elimina marcas diacríticas.
+     */
     private fun normalize(text: String): String {
-        return stripAccentsRegex.replace(Normalizer.normalize(text, Normalizer.Form.NFD), "")
+        val base = StringBuilder(text.length)
+        var i = 0
+        while (i < text.length) {
+            val cp = text.codePointAt(i)
+            val mapped = TextStyles.asciiOf(cp)
+            if (mapped != null) base.append(mapped) else base.appendCodePoint(cp)
+            i += Character.charCount(cp)
+        }
+        val decomposed = Normalizer.normalize(base.toString(), Normalizer.Form.NFD)
+        return stripAccentsRegex.replace(decomposed, "")
     }
 
     /** Distancia de Levenshtein con salida temprana al superar [limit]. */

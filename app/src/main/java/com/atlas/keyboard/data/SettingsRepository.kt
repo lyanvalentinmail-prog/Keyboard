@@ -38,6 +38,7 @@ class SettingsRepository(private val context: Context) {
         private val KEY_CUSTOM_TEXT_SIZE = floatPreferencesKey("custom_text_size")
         private val KEY_KEYBOARD_HEIGHT = intPreferencesKey("keyboard_height_dp")
         private val KEY_LANGUAGE = stringPreferencesKey("language")
+        private val KEY_TEXT_STYLE = stringPreferencesKey("text_style_id")
 
         const val MIN_HEIGHT_DP = 200
         const val MAX_HEIGHT_DP = 320
@@ -63,7 +64,8 @@ class SettingsRepository(private val context: Context) {
             customRadiusDp = (p[KEY_CUSTOM_RADIUS] ?: NO_FLOAT).toNullableFloat(),
             customTextSizeSp = (p[KEY_CUSTOM_TEXT_SIZE] ?: NO_FLOAT).toNullableFloat(),
             keyboardHeightDp = (p[KEY_KEYBOARD_HEIGHT] ?: 240).coerceIn(MIN_HEIGHT_DP, MAX_HEIGHT_DP),
-            language = p[KEY_LANGUAGE] ?: "es"
+            language = p[KEY_LANGUAGE] ?: "es",
+            textStyleId = p[KEY_TEXT_STYLE] ?: "normal"
         )
     }
 
@@ -130,6 +132,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setLanguage(value: String) {
         context.atlasDataStore.edit { it[KEY_LANGUAGE] = value }
+    }
+
+    suspend fun setTextStyleId(value: String) {
+        context.atlasDataStore.edit { it[KEY_TEXT_STYLE] = value }
     }
 
     /** Elimina todas las personalizaciones del tema (colores, radio, tamaño). */

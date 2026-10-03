@@ -3,6 +3,7 @@ package com.atlas.keyboard
 import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
@@ -25,12 +26,16 @@ import com.atlas.keyboard.keyboard.KeyboardMode
 import com.atlas.keyboard.keyboard.KeyboardView
 import com.atlas.keyboard.keyboard.ShiftState
 import com.atlas.keyboard.suggestion.SuggestionEngine
+import com.atlas.keyboard.textstyle.TextStyles
 import com.atlas.keyboard.theme.KeyboardTheme
 import com.atlas.keyboard.theme.KeyboardThemes
 import com.atlas.keyboard.theme.customized
 import com.atlas.keyboard.ui.ClipboardPanelView
 import com.atlas.keyboard.ui.EmojiPanelView
+import com.atlas.keyboard.ui.KeyboardToolbarView
+import com.atlas.keyboard.ui.SettingsActivity
 import com.atlas.keyboard.ui.SuggestionStripView
+import com.atlas.keyboard.ui.TextStylePanelView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -61,11 +66,14 @@ class AtlasInputMethodService : InputMethodService() {
 
     // Vista raíz del IME y sus componentes.
     private var rootView: LinearLayout? = null
+    private var toolbar: KeyboardToolbarView? = null
     private var strip: SuggestionStripView? = null
     private var container: FrameLayout? = null
     private var keyboardView: KeyboardView? = null
     private var emojiPanel: EmojiPanelView? = null
     private var clipboardPanel: ClipboardPanelView? = null
+    private var textStylePanel: TextStylePanelView? = null
+    private var activeTextStyle: TextStyles.Style = TextStyles.NORMAL
 
     // Estado de escritura.
     private var mode = KeyboardMode.LETTERS
@@ -108,6 +116,7 @@ class AtlasInputMethodService : InputMethodService() {
                     textSizeSp = newSettings.customTextSizeSp
                 )
                 suggestionEngine.setLanguage(newSettings.language)
+                activeTextStyle = TextStyles.byId(newSettings.textStyleId)
                 applySettingsToViews()
             }
         }
@@ -123,10 +132,12 @@ class AtlasInputMethodService : InputMethodService() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
+        val toolbarView = KeyboardToolbarView(this)
         val stripView = SuggestionStripView(this)
         val containerView = FrameLayout(this)
         val keyboard = KeyboardView(this)
 
+        toolbarView.listener = toolbarListener
         stripView.listener = suggestionStripListener
         keyboard.listener = keyboardListener
 
@@ -135,6 +146,13 @@ class AtlasInputMethodService : InputMethodService() {
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
+        root.addView(
+            toolbarView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(TOOLBAR_HEIGHT_DP)
             )
         )
         root.addView(
@@ -150,6 +168,7 @@ class AtlasInputMethodService : InputMethodService() {
         )
 
         rootView = root
+        toolbar = toolbarView
         strip = stripView
         container = containerView
         keyboardView = keyboard
@@ -208,6 +227,8 @@ class AtlasInputMethodService : InputMethodService() {
         val containerView = container ?: return
         val keyboard = keyboardView ?: return
 
+        toolbar?.applyTheme(theme)
+        toolbar?.setFontStyleActive(activeTextStyle != TextStyles.NORMAL)
         stripView.applyTheme(theme)
         stripView.layoutParams = stripView.layoutParams?.apply {
             height = dpToPx(SUGGESTION_STRIP_HEIGHT_DP)
@@ -219,6 +240,8 @@ class AtlasInputMethodService : InputMethodService() {
         keyboard.setTheme(theme)
         emojiPanel?.applyTheme(theme)
         clipboardPanel?.applyTheme(theme)
+        textStylePanel?.applyTheme(theme)
+        textStylePanel?.setActiveStyle(activeTextStyle.id)
         rebuildKeyboard()
         updateStripVisibility()
         updateSuggestions()
@@ -244,6 +267,7 @@ class AtlasInputMethodService : InputMethodService() {
         keyboardView?.visibility = View.VISIBLE
         emojiPanel?.visibility = View.GONE
         clipboardPanel?.visibility = View.GONE
+        textStylePanel?.visibility = View.GONE
         updateStripVisibility()
         rebuildKeyboard()
         updateSuggestions()
@@ -252,45 +276,58 @@ class AtlasInputMethodService : InputMethodService() {
     private fun showPanel(panelMode: KeyboardMode) {
         val containerView = container ?: return
         mode = panelMode
-        when (panelMode) {
-            KeyboardMode.EMOJI -> {
-                val panel = emojiPanel ?: EmojiPanelView(this).also { panel ->
-                    panel.listener = emojiPanelListener
-                    panel.applyTheme(theme)
-                    panel.visibility = View.GONE
+        val panel: View = when (panelMode) {
+            KeyboardMode.EMOJI -> emojiPanel ?: EmojiPanelView(this).also { newPanel ->
+                newPanel.listener = emojiPanelListener
+                newPanel.applyTheme(theme)
+                newPanel.visibility = View.GONE
+                containerView.addView(
+                    newPanel,
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                    )
+                )
+                emojiPanel = newPanel
+            }
+            KeyboardMode.CLIPBOARD -> clipboardPanel ?: ClipboardPanelView(this).also { newPanel ->
+                newPanel.listener = clipboardPanelListener
+                newPanel.applyTheme(theme)
+                newPanel.visibility = View.GONE
+                containerView.addView(
+                    newPanel,
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                    )
+                )
+                clipboardPanel = newPanel
+            }
+            KeyboardMode.TEXT_STYLES -> textStylePanel
+                ?: TextStylePanelView(this).also { newPanel ->
+                    newPanel.listener = textStylePanelListener
+                    newPanel.applyTheme(theme)
+                    newPanel.visibility = View.GONE
                     containerView.addView(
-                        panel,
+                        newPanel,
                         FrameLayout.LayoutParams(
                             FrameLayout.LayoutParams.MATCH_PARENT,
                             FrameLayout.LayoutParams.MATCH_PARENT
                         )
                     )
-                    emojiPanel = panel
+                    textStylePanel = newPanel
                 }
-                panel.visibility = View.VISIBLE
-            }
-            KeyboardMode.CLIPBOARD -> {
-                val panel = clipboardPanel ?: ClipboardPanelView(this).also { panel ->
-                    panel.listener = clipboardPanelListener
-                    panel.applyTheme(theme)
-                    panel.visibility = View.GONE
-                    containerView.addView(
-                        panel,
-                        FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.MATCH_PARENT
-                        )
-                    )
-                    clipboardPanel = panel
-                }
-                panel.visibility = View.VISIBLE
-                panel.showItems(clipboardRepo.items())
-            }
-            else -> Unit
+            else -> return
+        }
+        panel.visibility = View.VISIBLE
+        when (panel) {
+            clipboardPanel -> (panel as? ClipboardPanelView)?.showItems(clipboardRepo.items())
+            textStylePanel -> (panel as? TextStylePanelView)?.setActiveStyle(activeTextStyle.id)
         }
         keyboardView?.visibility = View.GONE
-        val other = if (panelMode == KeyboardMode.EMOJI) clipboardPanel else emojiPanel
-        other?.visibility = View.GONE
+        listOfNotNull<View>(emojiPanel, clipboardPanel, textStylePanel)
+            .filter { it !== panel }
+            .forEach { it.visibility = View.GONE }
         strip?.visibility = View.GONE
     }
 
@@ -366,9 +403,13 @@ class AtlasInputMethodService : InputMethodService() {
 
     private fun extractTrailingWord(before: CharSequence?): String {
         if (before.isNullOrEmpty()) return ""
-        var i = before.length - 1
-        while (i >= 0 && before[i].isLetter()) i--
-        return before.subSequence(i + 1, before.length).toString()
+        var i = before.length
+        while (i > 0) {
+            val cp = Character.codePointBefore(before, i)
+            if (!Character.isLetter(cp)) break
+            i -= Character.charCount(cp)
+        }
+        return before.subSequence(i, before.length).toString()
     }
 
     private fun updateSuggestions() {
@@ -386,12 +427,15 @@ class AtlasInputMethodService : InputMethodService() {
             return
         }
         val correction = if (word.length >= 3) suggestionEngine.bestCorrection(word) else null
+        // Las sugerencias se muestran con la capitalización y la fuente activa.
+        fun display(plain: String): String =
+            activeTextStyle.transform(capitalizeLike(word, plain))
         val completions = suggestionEngine.suggest(word, 3)
             .filter { it != correction }
-            .map { capitalizeLike(word, it) }
+            .map(::display)
         val slots = buildList {
             add(word)
-            if (correction != null) add(capitalizeLike(word, correction))
+            if (correction != null) add(display(correction))
             addAll(completions)
         }.distinct().take(3)
         stripView.updateSuggestions(
@@ -401,9 +445,39 @@ class AtlasInputMethodService : InputMethodService() {
     }
 
     private fun capitalizeLike(pattern: String, candidate: String): String {
-        return if (pattern.isNotEmpty() && pattern.first().isUpperCase()) {
+        if (pattern.isEmpty()) return candidate
+        // También detecta mayúsculas estilizadas (puntos de código > BMP).
+        return if (Character.isUpperCase(pattern.codePointAt(0))) {
             candidate.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
         } else candidate
+    }
+
+    /** true si el texto está formado únicamente por letras (incl. estilizadas). */
+    private fun isAllLetters(text: String): Boolean {
+        if (text.isEmpty()) return false
+        var i = 0
+        while (i < text.length) {
+            if (!Character.isLetter(text.codePointAt(i))) return false
+            i += Character.charCount(text.codePointAt(i))
+        }
+        return true
+    }
+
+    /** Unidades UTF-16 del último punto de código antes del cursor. */
+    private fun unitsOfLastCodePoint(ic: InputConnection): Int {
+        val before = ic.getTextBeforeCursor(4, 0) ?: return 1
+        if (before.isEmpty()) return 1
+        return Character.charCount(Character.codePointBefore(before, before.length))
+    }
+
+    private fun StringBuilder.dropLastCodePoint() {
+        if (isEmpty()) return
+        val len = length
+        if (len >= 2 && Character.isSurrogatePair(this[len - 2], this[len - 1])) {
+            setLength(len - 2)
+        } else {
+            setLength(len - 1)
+        }
     }
 
     /**
@@ -416,7 +490,7 @@ class AtlasInputMethodService : InputMethodService() {
         val correction = if (applyAutoCorrect && settings.autoCorrect && textFeaturesAllowed) {
             suggestionEngine.bestCorrection(typed)
         } else null
-        val finalText = capitalizeLike(typed, correction ?: typed)
+        val finalText = activeTextStyle.transform(capitalizeLike(typed, correction ?: typed))
 
         when {
             composingActive -> ic.commitText(finalText, 1)
@@ -452,6 +526,36 @@ class AtlasInputMethodService : InputMethodService() {
     }
 
     // ------------------------------------------------------------------ //
+    // Barra superior: ajustes, emojis, portapapeles y fuentes
+    // ------------------------------------------------------------------ //
+
+    private val toolbarListener = object : KeyboardToolbarView.Listener {
+        override fun onSettings() {
+            val intent = Intent(this@AtlasInputMethodService, SettingsActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            runCatching { startActivity(intent) }
+        }
+
+        override fun onEmoji() = showPanel(KeyboardMode.EMOJI)
+
+        override fun onClipboard() = showPanel(KeyboardMode.CLIPBOARD)
+
+        override fun onFonts() = showPanel(KeyboardMode.TEXT_STYLES)
+    }
+
+    private val textStylePanelListener = object : TextStylePanelView.Listener {
+        override fun onStyleSelected(styleId: String) {
+            serviceScope.launch { settingsRepo.setTextStyleId(styleId) }
+            // Aplicación inmediata; el flujo de ajustes confirmará el estado.
+            activeTextStyle = TextStyles.byId(styleId)
+            toolbar?.setFontStyleActive(activeTextStyle != TextStyles.NORMAL)
+            textStylePanel?.setActiveStyle(styleId)
+        }
+
+        override fun onBackToKeyboard() = showKeyboard(KeyboardMode.LETTERS)
+    }
+
+    // ------------------------------------------------------------------ //
     // Listener del teclado
     // ------------------------------------------------------------------ //
 
@@ -461,12 +565,14 @@ class AtlasInputMethodService : InputMethodService() {
             val ic = currentInputConnection ?: return
             when {
                 text == " " -> handleSpace(ic)
-                text.all { it.isLetter() } -> {
+                isAllLetters(text) -> {
+                    // Con una fuente activa, las letras se insertan estilizadas.
+                    val styled = activeTextStyle.transform(text)
                     if (!textFeaturesAllowed) {
                         // Campos de contraseña o no texto: entrada directa.
-                        ic.commitText(text, 1)
+                        ic.commitText(styled, 1)
                     } else {
-                        currentWord.append(text)
+                        currentWord.append(styled)
                         ic.setComposingText(currentWord.toString(), 1)
                         composingActive = true
                         updateSuggestions()
@@ -490,7 +596,7 @@ class AtlasInputMethodService : InputMethodService() {
             val ic = currentInputConnection ?: return
             when {
                 composingActive && currentWord.isNotEmpty() -> {
-                    currentWord.setLength(currentWord.length - 1)
+                    currentWord.dropLastCodePoint()
                     if (currentWord.isEmpty()) {
                         ic.commitText("", 1)
                         composingActive = false
@@ -501,14 +607,14 @@ class AtlasInputMethodService : InputMethodService() {
                 }
                 currentWord.isNotEmpty() -> {
                     // Palabra re-sincronizada desde el campo (sin composición activa).
-                    ic.deleteSurroundingText(1, 0)
-                    currentWord.setLength(currentWord.length - 1)
+                    ic.deleteSurroundingText(unitsOfLastCodePoint(ic), 0)
+                    currentWord.dropLastCodePoint()
                     updateSuggestions()
                 }
                 else -> {
                     val selected = ic.getSelectedText(0)
                     if (selected.isNullOrEmpty()) {
-                        ic.deleteSurroundingText(1, 0)
+                        ic.deleteSurroundingText(unitsOfLastCodePoint(ic), 0)
                     } else {
                         ic.commitText("", 1)
                     }
@@ -689,6 +795,7 @@ class AtlasInputMethodService : InputMethodService() {
     }
 
     companion object {
+        private const val TOOLBAR_HEIGHT_DP = 40
         private const val SUGGESTION_STRIP_HEIGHT_DP = 44
     }
 }

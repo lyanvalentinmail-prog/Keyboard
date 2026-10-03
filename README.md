@@ -17,6 +17,8 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 ### Teclado
 - Distribución QWERTY con **Ñ** (español) y QWERTY en inglés.
 - Teclas especiales con **iconos vectoriales** (⇧ ⇪ ⌫ ↵ 😀 📋) teñidos según el tema activo.
+- **Barra de herramientas superior** con accesos directos: ⚙ configuración, 😀 emojis, 📋 portapapeles y 🅰 fuentes de texto.
+- **Fuentes de texto estilizadas** (Unicode, sin red): Negrita, Cursiva, Negrita cursiva, Monoespaciada, Manuscrita, Gótica, Doble trazo, Circulares y Cuadrados — se insertan mientras escribes en cualquier app, y las sugerencias/autocorrección siguen funcionando sobre el texto estilizado.
 - Mayúsculas, minúsculas, bloqueo de mayúsculas (doble toque o pulsación larga en `⇧`).
 - Retroceso con **repetición** al mantener pulsado (`⌫`).
 - Intro/inteligente: ejecuta la acción del campo (buscar, enviar, ir…) o inserta salto de línea.
@@ -175,6 +177,8 @@ Abre la app **Atlas Keyboard**:
 │       │   │   └── KeyboardView.kt          # Render Canvas, gestos, animaciones
 │       │   ├── suggestion/
 │       │   │   └── SuggestionEngine.kt      # Sugerencias/corrección local
+│       │   ├── textstyle/
+│       │   │   └── TextStyles.kt            # Fuentes de texto Unicode
 │       │   ├── theme/
 │       │   │   └── KeyboardTheme.kt         # Temas + personalización
 │       │   ├── data/
@@ -182,9 +186,11 @@ Abre la app **Atlas Keyboard**:
 │       │   │   ├── SettingsRepository.kt    # DataStore
 │       │   │   └── ClipboardRepository.kt   # Historial local del portapapeles
 │       │   └── ui/
+│       │       ├── KeyboardToolbarView.kt   # Barra superior de accesos
 │       │       ├── SuggestionStripView.kt   # Franja de sugerencias
 │       │       ├── EmojiPanelView.kt        # Panel de emojis por categorías
 │       │       ├── ClipboardPanelView.kt    # Panel del portapapeles
+│       │       ├── TextStylePanelView.kt    # Panel de fuentes de texto
 │       │       └── SettingsActivity.kt      # Configuración
 │       └── res/
 │           ├── xml/method.xml               # Declaración del método de entrada

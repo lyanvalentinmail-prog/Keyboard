@@ -20,7 +20,7 @@ enum class KeyType {
 enum class ShiftState { OFF, ON, LOCKED }
 
 /** Panel mostrado actualmente en el área del teclado. */
-enum class KeyboardMode { LETTERS, SYMBOLS_1, SYMBOLS_2, EMOJI, CLIPBOARD }
+enum class KeyboardMode { LETTERS, SYMBOLS_1, SYMBOLS_2, EMOJI, CLIPBOARD, TEXT_STYLES }
 
 /**
  * Definición inmutable de una tecla.

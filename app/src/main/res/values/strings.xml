@@ -58,4 +58,11 @@
     <string name="clipboard_title">Portapapeles</string>
     <string name="clipboard_empty">No hay elementos copiados todavía</string>
     <string name="clipboard_clear_all">Borrar todo</string>
+
+    <!-- Barra superior del teclado y panel de fuentes -->
+    <string name="toolbar_settings_desc">Configuración</string>
+    <string name="toolbar_emoji_desc">Emojis</string>
+    <string name="toolbar_clipboard_desc">Portapapeles</string>
+    <string name="toolbar_font_desc">Fuentes de texto</string>
+    <string name="text_styles_title">Fuentes</string>
 </resources>

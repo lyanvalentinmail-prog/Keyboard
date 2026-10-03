@@ -20,5 +20,7 @@ data class AtlasSettings(
     val customRadiusDp: Float? = null,
     val customTextSizeSp: Float? = null,
     val keyboardHeightDp: Int = 240,
-    val language: String = "es"
+    val language: String = "es",
+    /** Estilo tipográfico activo para el texto escrito ("normal" por defecto). */
+    val textStyleId: String = "normal"
 )
