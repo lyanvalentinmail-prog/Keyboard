@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/settings_subtitle"
+            android:textSize="14sp"
+            android:alpha="0.7" />
+
+        <Button
+            android:id="@+id/btn_enable_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/action_enable_keyboard" />
+
+        <Button
+            android:id="@+id/btn_set_default"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/action_set_default" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/enable_hint"
+            android:textSize="12sp"
+            android:alpha="0.6" />
+
+        <!-- ===== Escritura ===== -->
+        <TextView
+            style="@style/AtlasSectionHeader"
+            android:text="@string/section_typing" />
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_vibration" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_vibration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/AtlasRowLabelPlain"
+            android:text="@string/pref_vibration_strength" />
+        <SeekBar
+            android:id="@+id/seek_vibration"
+            style="@style/AtlasSeek" />
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_sound" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_auto_caps" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_auto_caps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_auto_correct" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_auto_correct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_suggestions" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_suggestions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- ===== Apariencia ===== -->
+        <TextView
+            style="@style/AtlasSectionHeader"
+            android:text="@string/section_appearance" />
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_number_row" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_number_row"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_keyboard_height" />
+            <TextView
+                android:id="@+id/text_height_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7" />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/seek_height"
+            style="@style/AtlasSeek" />
+
+        <TextView
+            style="@style/AtlasRowLabelPlain"
+            android:text="@string/pref_theme" />
+        <RadioGroup
+            android:id="@+id/radio_group_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <RadioButton
+                android:id="@+id/radio_theme_dark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="@string/theme_dark" />
+            <RadioButton
+                android:id="@+id/radio_theme_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="@string/theme_light" />
+            <RadioButton
+                android:id="@+id/radio_theme_amoled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="@string/theme_amoled" />
+            <RadioButton
+                android:id="@+id/radio_theme_minimal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/theme_minimal" />
+        </RadioGroup>
+
+        <TextView
+            style="@style/AtlasRowLabelPlain"
+            android:text="@string/customize_theme" />
+
+        <TextView
+            style="@style/AtlasSmallLabel"
+            android:text="@string/color_background" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/row_bg_colors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="6dp" />
+        </HorizontalScrollView>
+
+        <TextView
+            style="@style/AtlasSmallLabel"
+            android:text="@string/color_keys" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/row_key_colors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="6dp" />
+        </HorizontalScrollView>
+
+        <TextView
+            style="@style/AtlasSmallLabel"
+            android:text="@string/color_text" />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout
+                android:id="@+id/row_text_colors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp" />
+        </HorizontalScrollView>
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/key_radius" />
+            <TextView
+                android:id="@+id/text_radius_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7" />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/seek_radius"
+            style="@style/AtlasSeek" />
+
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/text_size" />
+            <TextView
+                android:id="@+id/text_textsize_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.7" />
+        </LinearLayout>
+        <SeekBar
+            android:id="@+id/seek_text_size"
+            style="@style/AtlasSeek" />
+
+        <Button
+            android:id="@+id/btn_reset_custom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_customization" />
+
+        <!-- ===== Idioma ===== -->
+        <TextView
+            style="@style/AtlasSectionHeader"
+            android:text="@string/section_language" />
+        <RadioGroup
+            android:id="@+id/radio_group_language"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <RadioButton
+                android:id="@+id/radio_lang_es"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@string/language_es" />
+            <RadioButton
+                android:id="@+id/radio_lang_en"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_en" />
+        </RadioGroup>
+
+        <!-- ===== Portapapeles ===== -->
+        <TextView
+            style="@style/AtlasSectionHeader"
+            android:text="@string/section_clipboard" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/clipboard_hint"
+            android:textSize="13sp"
+            android:alpha="0.7" />
+        <Button
+            android:id="@+id/btn_clear_clipboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/clear_clipboard" />
+
+        <!-- ===== Privacidad ===== -->
+        <TextView
+            style="@style/AtlasSectionHeader"
+            android:text="@string/section_privacy" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/privacy_text"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.2"
+            android:alpha="0.8" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icono vectorial de la app: funciona como icono de lanzador en API 24+. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#1A73E8"
+        android:pathData="M30,22 h48 a16,16 0 0 1 16,16 v32 a16,16 0 0 1 -16,16 h-48 a16,16 0 0 1 -16,-16 v-32 a16,16 0 0 1 16,-16 z" />
+
+    <!-- fila 1 de teclas -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,38 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M45,38 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M60,38 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <!-- fila 2 de teclas -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,52 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M45,52 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M60,52 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <!-- intro + barra espaciadora -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,66 h9 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-9 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M45,66 h24 a2,2 0 0 1 2,2 v6 a2,2 0 0 1 -2,2 h-24 a2,2 0 0 1 -2,-2 v-6 a2,2 0 0 1 2,-2 z" />
+</vector>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Descripción del método de entrada. Android usa este archivo para listar
+     Atlas Keyboard en Ajustes > Sistema > Teclado > Teclados en pantalla. -->
+<input-method xmlns:android="http://schemas.android.com/apk/res/android"
+    android:settingsActivity="com.atlas.keyboard.ui.SettingsActivity"
+    android:supportsSwitchingToNextInputMethod="true"
+    android:supportsInlineSuggestions="false">
+
+    <subtype
+        android:label="@string/subtype_es"
+        android:imeSubtypeLocale="es_ES"
+        android:imeSubtypeMode="keyboard"
+        android:imeSubtypeExtraValue="AsciiCapable"
+        android:isAsciiCapable="true"
+        android:languageTag="es" />
+
+    <subtype
+        android:label="@string/subtype_en"
+        android:imeSubtypeLocale="en_US"
+        android:imeSubtypeMode="keyboard"
+        android:imeSubtypeExtraValue="AsciiCapable"
+        android:isAsciiCapable="true"
+        android:languageTag="en" />
+</input-method>
