@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Primer plano del icono adaptativo: glifo de teclado en blanco dentro de la
+     zona segura central (el sistema aplica su propia máscara al fondo). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Marco del teclado -->
+    <path
+        android:pathData="M36,40h36a5.5,5.5 0 0 1 5.5,5.5v23a5.5,5.5 0 0 1 -5.5,5.5h-36a5.5,5.5 0 0 1 -5.5,-5.5v-23a5.5,5.5 0 0 1 5.5,-5.5z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+
+    <!-- Fila 1 de teclas -->
+    <path android:fillColor="#FFFFFF" android:pathData="M40,47h7v5h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M50,47h7v5h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M60,47h7v5h-7z" />
+
+    <!-- Fila 2 de teclas -->
+    <path android:fillColor="#FFFFFF" android:pathData="M40,56h7v5h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M50,56h7v5h-7z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M60,56h7v5h-7z" />
+
+    <!-- Barra espaciadora -->
+    <path android:fillColor="#FFFFFF" android:pathData="M38,65h32v4h-32z" />
+</vector>

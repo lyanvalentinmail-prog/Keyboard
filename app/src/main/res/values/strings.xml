@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Atlas Keyboard</string>
+    <string name="subtype_es">Español (España)</string>
+    <string name="subtype_en">English (United States)</string>
+
+    <!-- Ajustes: activación -->
+    <string name="settings_subtitle">Teclado privado y minimalista para Android</string>
+    <string name="action_enable_keyboard">1. Activar Atlas Keyboard</string>
+    <string name="action_set_default">2. Elegir como teclado predeterminado</string>
+    <string name="enable_hint">Primero activa el teclado en Ajustes de Android y después selecciónalo como método de entrada actual.</string>
+
+    <!-- Ajustes: escritura -->
+    <string name="section_typing">Escritura</string>
+    <string name="pref_vibration">Vibrar al pulsar</string>
+    <string name="pref_vibration_strength">Intensidad de vibración</string>
+    <string name="pref_sound">Sonido al pulsar</string>
+    <string name="pref_auto_caps">Mayúsculas automáticas</string>
+    <string name="pref_auto_correct">Autocorrección</string>
+    <string name="pref_suggestions">Sugerencias de palabras</string>
+
+    <!-- Ajustes: apariencia -->
+    <string name="section_appearance">Apariencia</string>
+    <string name="pref_number_row">Mostrar fila de números</string>
+    <string name="pref_keyboard_height">Altura del teclado</string>
+    <string name="pref_theme">Tema</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_amoled">AMOLED</string>
+    <string name="theme_minimal">Minimalista</string>
+    <string name="customize_theme">Personalizar tema</string>
+    <string name="color_background">Color de fondo</string>
+    <string name="color_keys">Color de las teclas</string>
+    <string name="color_text">Color del texto</string>
+    <string name="key_radius">Radio de las teclas</string>
+    <string name="text_size">Tamaño del texto</string>
+    <string name="reset_customization">Restablecer personalización</string>
+    <string name="value_dp">%1$d dp</string>
+    <string name="value_sp">%1$d sp</string>
+
+    <!-- Ajustes: idioma -->
+    <string name="section_language">Idioma</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+
+    <!-- Ajustes: portapapeles -->
+    <string name="section_clipboard">Portapapeles</string>
+    <string name="clipboard_hint">Atlas Keyboard guarda localmente los últimos textos que copies para pegarlos rápido desde la tecla 📋.</string>
+    <string name="clear_clipboard">Borrar historial del portapapeles</string>
+    <string name="clipboard_cleared">Historial del portapapeles eliminado</string>
+    <string name="clear_learned_words">Borrar palabras aprendidas</string>
+    <string name="learned_words_cleared">Vocabulario aprendido eliminado</string>
+
+    <!-- Ajustes: privacidad -->
+    <string name="section_privacy">Privacidad</string>
+    <string name="privacy_text">Atlas Keyboard procesa todas las pulsaciones localmente en tu dispositivo.\n\n• No registra contraseñas (los campos seguros desactivan sugerencias y autocorrección).\n• No guarda conversaciones completas.\n• No envía pulsaciones ni texto a Internet: la app no usa red.\n• No incluye analíticas ni rastreadores.\n• El historial del portapapeles, los emojis recientes, tus palabras aprendidas y tus preferencias se almacenan solo en el almacenamiento local de la app, y puedes borrarlos desde aquí.</string>
+
+    <!-- Panel de emojis y portapapeles -->
+    <string name="back_to_keyboard">ABC</string>
+    <string name="clipboard_title">Portapapeles</string>
+    <string name="clipboard_empty">No hay elementos copiados todavía</string>
+    <string name="clipboard_clear_all">Borrar todo</string>
+
+    <!-- Barra superior del teclado y panel de fuentes -->
+    <string name="toolbar_settings_desc">Configuración</string>
+    <string name="toolbar_emoji_desc">Emojis</string>
+    <string name="toolbar_clipboard_desc">Portapapeles</string>
+    <string name="toolbar_font_desc">Fuentes de texto</string>
+    <string name="text_styles_title">Fuentes</string>
+
+    <!-- Vista previa en Ajustes -->
+    <string name="preview_caption">Vista previa del teclado</string>
+    <string name="pref_glide_typing">Escribir deslizando el dedo</string>
+</resources>
