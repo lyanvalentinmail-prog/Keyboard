@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import com.atlas.keyboard.R
+import com.atlas.keyboard.data.RecentEmojiStore
 import com.atlas.keyboard.theme.KeyboardTheme
 import com.atlas.keyboard.theme.KeyboardThemes
 import com.atlas.keyboard.theme.withAlpha
@@ -39,7 +40,23 @@ class EmojiPanelView @JvmOverloads constructor(
 
     private data class Category(val name: String, val iconRes: Int, val emojis: List<String>)
 
-    private val categories = listOf(
+    private val recentStore by lazy { RecentEmojiStore(context) }
+
+    /** Categoría dinámica con los emojis usados recientemente (o `null`). */
+    private fun recentCategory(): Category? {
+        val recent = recentStore.get()
+        return if (recent.isEmpty()) null
+        else Category("Recientes", R.drawable.ic_cat_recent, recent)
+    }
+
+    private fun buildCategories(): List<Category> {
+        val recent = recentCategory()
+        return if (recent != null) listOf(recent) + baseCategories else baseCategories
+    }
+
+    private var categories: List<Category> = emptyList()
+
+    private val baseCategories = listOf(
         Category("Caritas", R.drawable.ic_key_emoji, listOf(
             "😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😗","😚","😙",
             "🥲","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤫","🤔","🫡","🤐","🤨","😐","😑","😶","😏","😒","🙄",
@@ -117,7 +134,7 @@ class EmojiPanelView @JvmOverloads constructor(
     private var currentCategory = 0
 
     private val gridAdapter = object : BaseAdapter() {
-        var emojis: List<String> = categories[0].emojis
+        var emojis: List<String> = emptyList()
         override fun getCount(): Int = emojis.size
         override fun getItem(position: Int): String = emojis[position]
         override fun getItemId(position: Int): Long = position.toLong()
@@ -147,12 +164,15 @@ class EmojiPanelView @JvmOverloads constructor(
         stretchMode = GridView.STRETCH_COLUMN_WIDTH
         adapter = gridAdapter
         onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            listener?.onEmojiSelected(gridAdapter.getItem(position))
+            val emoji = gridAdapter.getItem(position)
+            listener?.onEmojiSelected(emoji)
+            registerRecent(emoji)
         }
     }
 
     init {
         orientation = VERTICAL
+        categories = buildCategories()
         buildTopBar()
         addView(topBar, LayoutParams(LayoutParams.MATCH_PARENT, (48 * density).toInt()))
         addView(gridView, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
@@ -203,6 +223,54 @@ class EmojiPanelView @JvmOverloads constructor(
         gridAdapter.notifyDataSetChanged()
         gridView.setSelection(0)
         refreshTabColors()
+    }
+
+    /** Guarda el emoji usado y actualiza la pestaña "Recientes" en caliente. */
+    private fun registerRecent(emoji: String) {
+        recentStore.push(emoji)
+        val recent = recentCategory() ?: return
+        val hadRecent = categories.firstOrNull()?.name == "Recientes"
+        categories = if (hadRecent) {
+            listOf(recent) + categories.drop(1)
+        } else {
+            listOf(recent) + categories
+        }
+        if (!hadRecent) {
+            // Apareció la pestaña nueva: reconstruye la barra conservando la vista.
+            buildTopBar()
+            currentCategory += 1 // la categoría visible se desplaza una posición
+            refreshTabColors()
+        } else if (currentCategory == 0) {
+            gridAdapter.emojis = recent.emojis
+            gridAdapter.notifyDataSetChanged()
+            gridView.setSelection(0)
+        }
+    }
+
+    /** Reconstruye la pestaña "Recientes" (llamado al abrir el panel). */
+    fun refreshRecents() {
+        val recent = recentCategory()
+        val hadRecent = categories.firstOrNull()?.name == "Recientes"
+        when {
+            recent == null && hadRecent -> {
+                categories = categories.drop(1)
+                buildTopBar()
+                setCategory(0)
+            }
+            recent != null && hadRecent -> {
+                categories = listOf(recent) + categories.drop(1)
+                if (currentCategory == 0) {
+                    gridAdapter.emojis = recent.emojis
+                    gridAdapter.notifyDataSetChanged()
+                }
+            }
+            recent != null && !hadRecent -> {
+                categories = listOf(recent) + categories
+                buildTopBar()
+                currentCategory += 1
+                refreshTabColors()
+            }
+        }
     }
 
     fun applyTheme(newTheme: KeyboardTheme) {

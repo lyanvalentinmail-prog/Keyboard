@@ -327,6 +327,13 @@
             android:layout_height="wrap_content"
             android:text="@string/clear_clipboard" />
 
+        <Button
+            android:id="@+id/btn_clear_learned_words"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/clear_learned_words" />
+
         <View style="@style/AtlasDivider" />
 
         <!-- ===== Privacidad ===== -->

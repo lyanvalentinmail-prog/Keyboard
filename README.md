@@ -22,6 +22,7 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 - **Escritura por gestos (swipe)**: desliza el dedo por las letras sin levantarlo y el teclado reconoce la palabra por el rastro (100 % local, sobre el diccionario integrado). El trazo se dibuja con el color de acento y se desvanece al soltar.
 - **Cursor deslizante**: arrastra el dedo horizontalmente sobre la **barra espaciadora** para mover el cursor con precisión.
 - **Borrado por palabras**: desliza hacia la izquierda desde `⌫` para borrar la palabra anterior de una vez.
+- **Pulsación larga en el espacio**: abre el selector de teclados de Android para cambiar de IME al instante.
 - **Fuentes de texto estilizadas** (Unicode, sin red): Negrita, Cursiva, Negrita cursiva, Monoespaciada, Manuscrita, Gótica, Doble trazo, Circulares y Cuadrados — se insertan mientras escribes en cualquier app, y las sugerencias/autocorrección siguen funcionando sobre el texto estilizado.
 - Mayúsculas, minúsculas, bloqueo de mayúsculas (doble toque o pulsación larga en `⇧`).
 - Retroceso con **repetición** al mantener pulsado (`⌫`).
@@ -33,12 +34,14 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 
 ### Sugerencias y autocorrección
 - Franja con hasta **3 sugerencias** sobre el teclado.
+- **Aprende tu vocabulario** localmente: las palabras que escribes a menudo aparecen antes en las sugerencias y dejan de autocorregirse. Todo queda en el dispositivo y puedes borrarlo desde Ajustes.
 - Autocorrección opcional al pulsar espacio o puntuación (incluye acentuación automática: `cafe` → `café`).
 - Diccionarios **locales** empaquetados en la app (`res/raw`), en español e inglés.
 - Se puede desactivar por completo. **En campos de contraseña se desactivan automáticamente** sugerencias y corrección.
 - Nada de lo que escribes sale del dispositivo.
 
 ### Emojis
+- Pestaña **Recientes** con los últimos emojis usados (memoria local de 30).
 - Panel organizado en **8 categorías** (caritas, gestos, animales, comida, deportes, viajes, objetos, símbolos) con más de 1000 emojis.
 - Las pestañas de categoría usan **iconos vectoriales SVG** teñidos según el tema; la pestaña activa se resalta con el color de acento.
 - Se abre desde el icono `😀` de la barra superior y se vuelve al teclado con `ABC`.
@@ -61,6 +64,7 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 - **Escritura por gestos** activable/desactivable.
 - Fila numérica, altura del teclado, tema, idioma.
 - Secciones separadas visualmente con divisores.
+- Botón para **borrar las palabras aprendidas** con un toque.
 - Sección de **privacidad** que explica el procesamiento 100 % local.
 
 ---

@@ -55,6 +55,8 @@ class KeyboardView @JvmOverloads constructor(
         fun onGlideFinished(letters: List<String>)
         /** Deslizamiento horizontal sobre la barra espaciadora: mueve el cursor n pasos. */
         fun onCursorMove(steps: Int)
+        /** Pulsación prolongada sobre la barra espaciadora: elegir método de entrada. */
+        fun onSpaceLongPressed()
         /** Deslizamiento a la izquierda desde la tecla borrar: borra la palabra anterior. */
         fun onDeleteWord()
         /** Llamado en el instante de pulsar una tecla (para vibración/sonido). */
@@ -459,6 +461,12 @@ class KeyboardView @JvmOverloads constructor(
                 scheduleLongPress {
                     longPressFired = true
                     listener?.onShiftLongPressed()
+                }
+            }
+            KeyType.SPACE -> {
+                scheduleLongPress {
+                    longPressFired = true
+                    listener?.onSpaceLongPressed()
                 }
             }
             else -> {

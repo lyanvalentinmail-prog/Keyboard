@@ -111,6 +111,19 @@ object TextStyles {
     /** ASCII equivalente de un punto de código estilizado, o `null`. */
     fun asciiOf(codePoint: Int): Char? = reverse[codePoint]
 
+    /** Quita el estilo: convierte cada carácter estilizado a su ASCII base. */
+    fun plain(text: String): String {
+        val out = StringBuilder(text.length)
+        var i = 0
+        while (i < text.length) {
+            val cp = text.codePointAt(i)
+            val mapped = asciiOf(cp)
+            if (mapped != null) out.append(mapped) else out.appendCodePoint(cp)
+            i += Character.charCount(cp)
+        }
+        return out.toString()
+    }
+
     private fun rangeMap(
         upper: Int = 0,
         lower: Int = 0,

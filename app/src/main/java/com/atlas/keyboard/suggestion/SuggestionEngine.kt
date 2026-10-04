@@ -23,6 +23,13 @@ class SuggestionEngine {
     @Volatile
     private var language: String = "es"
 
+    /** Palabras aprendidas del usuario (palabra → usos), priorizadas al sugerir. */
+    @Volatile
+    private var userWords: Map<String, Int> = emptyMap()
+
+    @Volatile
+    private var userWordsNormalized: Map<String, String> = emptyMap()
+
     private val stripAccentsRegex = "\\p{Mn}+".toRegex()
 
     /** Carga el diccionario del idioma si todavía no está en memoria. */
@@ -41,6 +48,29 @@ class SuggestionEngine {
         language = lang
     }
 
+    /** Carga en memoria el vocabulario aprendido (al arrancar el teclado). */
+    fun setUserWords(words: Map<String, Int>) {
+        userWords = words
+        userWordsNormalized = words.keys.associateWith { normalize(it) }
+    }
+
+    /** true si el vocabulario aprendido contiene entradas. */
+    fun hasUserWords(): Boolean = userWords.isNotEmpty()
+
+    /**
+     * Registra un uso de [word] (en minúsculas, ya validada como "solo letras").
+     * Devuelve el mapa actualizado listo para persistir.
+     */
+    fun learnWord(word: String): Map<String, Int> {
+        val updated = userWords.toMutableMap()
+        updated[word] = (updated[word] ?: 0) + 1
+        setUserWords(updated)
+        return updated
+    }
+
+    /** Vacía el vocabulario aprendido. */
+    fun clearUserWords() = setUserWords(emptyMap())
+
     /**
      * Devuelve hasta [max] palabras que continúan el prefijo escrito, en orden
      * de frecuencia. Insensible a mayúsculas y acentos.
@@ -51,11 +81,25 @@ class SuggestionEngine {
         val prefix = normalize(input.lowercase(Locale.ROOT))
         if (prefix.isEmpty()) return emptyList()
         val result = ArrayList<String>(max)
+        // 1) Palabras aprendidas del usuario, de más a menos usadas.
+        if (userWords.isNotEmpty()) {
+            userWordsNormalized.entries
+                .filter { (original, norm) -> norm.length > prefix.length &&
+                        norm.startsWith(prefix) && original != prefix }
+                .sortedByDescending { userWords[it.key] ?: 0 }
+                .forEach {
+                    result += it.key
+                    if (result.size >= max) return result
+                }
+        }
+        // 2) Diccionario base por frecuencia.
         for (i in dict.normalized.indices) {
             val norm = dict.normalized[i]
             if (norm.length > prefix.length && norm.startsWith(prefix)) {
-                result += dict.words[i]
-                if (result.size >= max) break
+                if (dict.words[i] !in result) {
+                    result += dict.words[i]
+                    if (result.size >= max) break
+                }
             }
         }
         return result
@@ -73,6 +117,7 @@ class SuggestionEngine {
         val dict = dictionaries[language] ?: return null
         val lower = word.lowercase(Locale.ROOT)
         if (dict.words.contains(lower)) return null
+        if (lower in userWords) return null // aprendida del usuario: no la toca
 
         val norm = normalize(lower)
         // 1) Misma palabra pero bien acentuada: "cafe" -> "café"
@@ -143,6 +188,7 @@ class SuggestionEngine {
         val lower = input.lowercase(Locale.ROOT)
         if (dict.words.contains(lower)) return true
         val norm = normalize(lower)
+        if (userWordsNormalized.values.contains(norm)) return true
         return dict.normalized.contains(norm)
     }
 

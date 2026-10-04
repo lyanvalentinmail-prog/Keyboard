@@ -21,6 +21,7 @@ import com.atlas.keyboard.R
 import com.atlas.keyboard.data.AtlasSettings
 import com.atlas.keyboard.data.ClipboardRepository
 import com.atlas.keyboard.data.SettingsRepository
+import com.atlas.keyboard.data.UserWordStore
 import com.atlas.keyboard.theme.KeyboardThemes
 import com.atlas.keyboard.theme.customized
 import kotlinx.coroutines.flow.collect
@@ -74,6 +75,10 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_clear_clipboard).setOnClickListener {
             clipboardRepo.clear()
             Toast.makeText(this, R.string.clipboard_cleared, Toast.LENGTH_SHORT).show()
+        }
+        findViewById<Button>(R.id.btn_clear_learned_words).setOnClickListener {
+            UserWordStore(this).clear()
+            Toast.makeText(this, R.string.learned_words_cleared, Toast.LENGTH_SHORT).show()
         }
 
         // La vista previa se dibuja con esquinas redondeadas sobre el layout.

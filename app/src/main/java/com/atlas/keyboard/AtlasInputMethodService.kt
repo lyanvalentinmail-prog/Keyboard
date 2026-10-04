@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.inputmethodservice.InputMethodService
 import android.media.AudioManager
+import android.view.inputmethod.InputMethodManager
 import android.os.Build
 import android.os.SystemClock
 import android.os.VibrationEffect
@@ -21,6 +22,7 @@ import android.widget.LinearLayout
 import com.atlas.keyboard.data.AtlasSettings
 import com.atlas.keyboard.data.ClipboardRepository
 import com.atlas.keyboard.data.SettingsRepository
+import com.atlas.keyboard.data.UserWordStore
 import com.atlas.keyboard.keyboard.KeyType
 import com.atlas.keyboard.keyboard.KeyboardLayouts
 import com.atlas.keyboard.keyboard.KeyboardMode
@@ -61,6 +63,7 @@ class AtlasInputMethodService : InputMethodService() {
     private lateinit var clipboardManager: ClipboardManager
 
     private val suggestionEngine = SuggestionEngine()
+    private val userWordStore by lazy { UserWordStore(this) }
 
     private var settings = AtlasSettings()
     private var theme: KeyboardTheme = KeyboardThemes.DARK
@@ -104,6 +107,7 @@ class AtlasInputMethodService : InputMethodService() {
         serviceScope.launch(Dispatchers.IO) {
             suggestionEngine.loadLanguage(this@AtlasInputMethodService, "es", R.raw.dictionary_es)
             suggestionEngine.loadLanguage(this@AtlasInputMethodService, "en", R.raw.dictionary_en)
+            suggestionEngine.setUserWords(userWordStore.load())
         }
 
         serviceScope.launch {
@@ -325,6 +329,7 @@ class AtlasInputMethodService : InputMethodService() {
         when (panel) {
             clipboardPanel -> (panel as? ClipboardPanelView)?.showItems(clipboardRepo.items())
             textStylePanel -> (panel as? TextStylePanelView)?.setActiveStyle(activeTextStyle.id)
+            emojiPanel -> (panel as? EmojiPanelView)?.refreshRecents()
         }
         keyboardView?.visibility = View.GONE
         listOfNotNull<View>(emojiPanel, clipboardPanel, textStylePanel)
@@ -503,7 +508,29 @@ class AtlasInputMethodService : InputMethodService() {
         }
         currentWord.setLength(0)
         composingActive = false
+        learnTypedWord(typed)
     }
+
+    /**
+     * Aprende localmente la palabra confirmada (≥3 letras, solo en campos con
+     * funciones de texto). El guardado en disco se difiere para no escribir en
+     * cada tecla: se programa 3 s después del último aprendizaje.
+     */
+    private fun learnTypedWord(word: String) {
+        if (!textFeaturesAllowed || !settings.suggestionsEnabled) return
+        if (word.length < 3 || !isAllLetters(word)) return
+        val plain = TextStyles.plain(word).lowercase()
+        serviceScope.launch(Dispatchers.IO) {
+            val updated = suggestionEngine.learnWord(plain)
+            saveJob?.cancel()
+            saveJob = serviceScope.launch(Dispatchers.IO) {
+                kotlinx.coroutines.delay(3000L)
+                userWordStore.save(updated)
+            }
+        }
+    }
+
+    private var saveJob: kotlinx.coroutines.Job? = null
 
     /** Marca de tiempo del último espacio simple, para el atajo doble espacio → ". ". */
     private var lastSpaceCommitAt: Long = 0L
@@ -708,6 +735,16 @@ class AtlasInputMethodService : InputMethodService() {
             }
             evaluateAutoCaps()
             updateSuggestions()
+        }
+
+        override fun onSpaceLongPressed() {
+            // Pulsación larga en el espacio: selector de método de entrada del sistema.
+            switchInputMethodPicker()
+        }
+
+        private fun switchInputMethodPicker() {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showInputMethodPicker()
         }
 
         override fun onCursorMove(steps: Int) {

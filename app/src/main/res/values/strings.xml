@@ -48,10 +48,12 @@
     <string name="clipboard_hint">Atlas Keyboard guarda localmente los últimos textos que copies para pegarlos rápido desde la tecla 📋.</string>
     <string name="clear_clipboard">Borrar historial del portapapeles</string>
     <string name="clipboard_cleared">Historial del portapapeles eliminado</string>
+    <string name="clear_learned_words">Borrar palabras aprendidas</string>
+    <string name="learned_words_cleared">Vocabulario aprendido eliminado</string>
 
     <!-- Ajustes: privacidad -->
     <string name="section_privacy">Privacidad</string>
-    <string name="privacy_text">Atlas Keyboard procesa todas las pulsaciones localmente en tu dispositivo.\n\n• No registra contraseñas (los campos seguros desactivan sugerencias y autocorrección).\n• No guarda conversaciones completas.\n• No envía pulsaciones ni texto a Internet: la app no usa red.\n• No incluye analíticas ni rastreadores.\n• El historial del portapapeles y tus preferencias se almacenan solo en el almacenamiento local de la app.</string>
+    <string name="privacy_text">Atlas Keyboard procesa todas las pulsaciones localmente en tu dispositivo.\n\n• No registra contraseñas (los campos seguros desactivan sugerencias y autocorrección).\n• No guarda conversaciones completas.\n• No envía pulsaciones ni texto a Internet: la app no usa red.\n• No incluye analíticas ni rastreadores.\n• El historial del portapapeles, los emojis recientes, tus palabras aprendidas y tus preferencias se almacenan solo en el almacenamiento local de la app, y puedes borrarlos desde aquí.</string>
 
     <!-- Panel de emojis y portapapeles -->
     <string name="back_to_keyboard">ABC</string>
