@@ -97,6 +97,46 @@ class SuggestionEngine {
         return bestWord
     }
 
+    /**
+     * Escritura por gestos: dado el rastro de letras que el dedo atravesó (en
+     * orden, sin duplicados consecutivos), devuelve la mejor palabra del
+     * diccionario compatible: misma primera y última letra y cuyas letras
+     * aparezcan en orden dentro del rastro. Gana la palabra que explica una
+     * mayor fracción del rastro; a igual cobertura, la más frecuente (orden
+     * del diccionario). `null` si no hay candidata razonable.
+     */
+    fun bestGlideMatch(traversed: String): String? {
+        if (traversed.length < 2) return null
+        val dict = dictionaries[language] ?: return null
+        val trace = normalize(traversed.lowercase(Locale.ROOT))
+        if (trace.length < 2) return null
+        val first = trace.first()
+        val last = trace.last()
+        var best: String? = null
+        var bestCoverage = -1f
+        for (i in dict.normalized.indices) {
+            val word = dict.normalized[i]
+            if (word.length < 2 || word.length > trace.length) continue
+            if (word.first() != first || word.last() != last) continue
+            // La palabra debe aparecer como subsecuencia ordenada del rastro.
+            var ti = 0
+            var matched = true
+            for (c in word) {
+                val found = trace.indexOf(c, ti)
+                if (found < 0) { matched = false; break }
+                ti = found + 1
+            }
+            if (!matched) continue
+            val coverage = word.length.toFloat() / trace.length
+            if (coverage > bestCoverage) {
+                bestCoverage = coverage
+                best = dict.words[i]
+                if (coverage >= 0.99f) break
+            }
+        }
+        return best
+    }
+
     /** true si la palabra (con acentos o en su forma normalizada) existe. */
     fun isKnownWord(input: String): Boolean {
         val dict = dictionaries[language] ?: return false

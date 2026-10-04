@@ -8,6 +8,8 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.os.Handler
@@ -21,7 +23,9 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.atlas.keyboard.theme.KeyboardTheme
 import com.atlas.keyboard.theme.KeyboardThemes
 import com.atlas.keyboard.theme.readableTextOn
+import kotlin.math.abs
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.min
 
 /**
@@ -44,11 +48,23 @@ class KeyboardView @JvmOverloads constructor(
         fun onSymbolsPageToggle()
         fun onEmojiRequested()
         fun onClipboardRequested()
+        /**
+         * Escritura por gestos: el dedo se levantó tras trazar sobre las teclas
+         * [letters], en orden y sin duplicados consecutivos.
+         */
+        fun onGlideFinished(letters: List<String>)
+        /** Deslizamiento horizontal sobre la barra espaciadora: mueve el cursor n pasos. */
+        fun onCursorMove(steps: Int)
+        /** Deslizamiento a la izquierda desde la tecla borrar: borra la palabra anterior. */
+        fun onDeleteWord()
         /** Llamado en el instante de pulsar una tecla (para vibración/sonido). */
         fun onKeyFeedback(type: KeyType)
     }
 
     var listener: Listener? = null
+
+    /** Activa la escritura por gestos y los gestos de cursor/borrado (desde ajustes). */
+    var glideEnabled = false
 
     private val density = resources.displayMetrics.density
 
@@ -90,6 +106,10 @@ class KeyboardView @JvmOverloads constructor(
     private var longPressRunnable: Runnable? = null
     private var repeatRunnable: Runnable? = null
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    private val glideStartDistancePx = GLIDE_START_DISTANCE_DP * density
+    private val cursorStepPx = CURSOR_STEP_DP * density
+    private val deleteWordSlidePx = DELETE_WORD_SLIDE_DP * density
+    private val glideSampleStepPx = GLIDE_SAMPLE_STEP_DP * density
 
     // Popup de alternativas
     private var popupActive = false
@@ -98,6 +118,30 @@ class KeyboardView @JvmOverloads constructor(
     private val popupBounds = RectF()
     private var popupCellWidth = 0f
     private var popupCellCount = 0
+
+    // Escritura por gestos (trazo sobre las letras)
+    private var glideActive = false
+    private var glideStartX = 0f
+    private var glideStartY = 0f
+    private var glideLastKeyIndex = -1
+    private val glideLetters = ArrayList<String>()
+    private val trailPoints = ArrayList<PointF>()
+    private val trailPath = Path()
+    private val trailPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+    }
+    private var trailFadeAnimator: ValueAnimator? = null
+
+    // Deslizar sobre la barra espaciadora para mover el cursor
+    private var spaceSwipeActive = false
+    private var spaceSwipeUsed = false
+    private var spaceLastX = 0f
+
+    // Deslizar hacia la izquierda desde la tecla borrar
+    private var deleteDownX = 0f
+    private var deleteSwipeFired = false
 
     // ------------------------------------------------------------------ //
     // API pública
@@ -115,6 +159,8 @@ class KeyboardView @JvmOverloads constructor(
         this.theme = theme
         backgroundPaint.color = theme.backgroundColor
         popupHighlightPaint.color = theme.accentColor
+        trailPaint.color = theme.accentColor
+        trailPaint.strokeWidth = 5f * density
         invalidate()
     }
 
@@ -123,6 +169,14 @@ class KeyboardView @JvmOverloads constructor(
         removeTouchCallbacks()
         touchActive = false
         pressedIndex = -1
+        glideActive = false
+        glideLetters.clear()
+        trailPoints.clear()
+        trailFadeAnimator?.cancel()
+        trailFadeAnimator = null
+        spaceSwipeActive = false
+        spaceSwipeUsed = false
+        deleteSwipeFired = false
         dismissPopup()
         if (pressProgress.isNotEmpty() || animators.isNotEmpty()) {
             // Copia antes de cancelar: los listeners de cancelación mutan el mapa.
@@ -137,6 +191,8 @@ class KeyboardView @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         cancelOngoingTouch()
+        trailFadeAnimator?.cancel()
+        trailFadeAnimator = null
         handler.removeCallbacksAndMessages(null)
     }
 
@@ -236,6 +292,16 @@ class KeyboardView @JvmOverloads constructor(
                 val cy = (top + bottom) / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
                 canvas.drawText(key.label, cx, cy, textPaint)
             }
+        }
+
+        // Rastro de la escritura por gestos.
+        if (trailPoints.size >= 2) {
+            trailPath.reset()
+            trailPath.moveTo(trailPoints[0].x, trailPoints[0].y)
+            for (i in 1 until trailPoints.size) {
+                trailPath.lineTo(trailPoints[i].x, trailPoints[i].y)
+            }
+            canvas.drawPath(trailPath, trailPaint)
         }
 
         // Vista previa del carácter encima de la tecla pulsada.
@@ -364,6 +430,16 @@ class KeyboardView @JvmOverloads constructor(
         pressedIndex = index
         animateProgress(index, 1f)
 
+        // Estado inicial de los gestos de este toque.
+        glideStartX = x
+        glideStartY = y
+        glideLastKeyIndex = index
+        deleteDownX = x
+        deleteSwipeFired = false
+        spaceSwipeActive = false
+        spaceSwipeUsed = false
+        spaceLastX = x
+
         val key = keyRects[index].key
         listener?.onKeyFeedback(key.type)
 
@@ -403,24 +479,165 @@ class KeyboardView @JvmOverloads constructor(
             return
         }
         val index = pressedIndex
-        if (index >= 0 && index < keyRects.size) {
-            val rect = keyRects[index].rect
-            val out = x < rect.left - touchSlop || x > rect.right + touchSlop ||
-                    y < rect.top - touchSlop || y > rect.bottom + touchSlop
-            if (out) {
-                // El dedo se salió de la tecla: cancela la pulsación.
-                removeTouchCallbacks()
-                val released = pressedIndex
-                pressedIndex = -1
-                if (released >= 0) animateProgress(released, 0f)
+        if (index < 0 || index >= keyRects.size) return
+        val key = keyRects[index].key
+
+        // 1) Escritura por gestos ya activa: sigue el rastro.
+        if (glideActive) {
+            trackGlidePoint(x, y)
+            return
+        }
+
+        // 2) Comienzo del trazo sobre una tecla de letra.
+        if (glideEnabled && key.type == KeyType.CHARACTER && isLetterKey(key)) {
+            val dx = x - glideStartX
+            val dy = y - glideStartY
+            if (dx * dx + dy * dy > glideStartDistancePx * glideStartDistancePx) {
+                beginGlide()
+                trackGlidePoint(x, y)
+                return
             }
         }
+
+        // 3) Cursor: deslizar horizontalmente sobre la barra espaciadora.
+        if (glideEnabled && key.type == KeyType.SPACE) {
+            val rect = keyRects[index].rect
+            val withinY = y >= rect.top - touchSlop * 2 && y <= rect.bottom + touchSlop * 2
+            if (!spaceSwipeActive && withinY && abs(x - spaceLastX) > touchSlop * 2) {
+                spaceSwipeActive = true
+                spaceSwipeUsed = true
+                removeTouchCallbacks()
+            }
+            if (spaceSwipeActive) {
+                var steps = 0
+                while (x - spaceLastX > cursorStepPx) {
+                    spaceLastX += cursorStepPx
+                    steps++
+                }
+                while (x - spaceLastX < -cursorStepPx) {
+                    spaceLastX -= cursorStepPx
+                    steps--
+                }
+                if (steps != 0) listener?.onCursorMove(steps)
+                return
+            }
+        }
+
+        // 4) Deslizar a la izquierda desde la tecla borrar: borra la palabra entera.
+        if (glideEnabled && key.type == KeyType.DELETE) {
+            val rect = keyRects[index].rect
+            val withinY = y >= rect.top - touchSlop * 3 && y <= rect.bottom + touchSlop * 3
+            if (withinY && !deleteSwipeFired && deleteDownX - x > deleteWordSlidePx) {
+                deleteSwipeFired = true
+                removeTouchCallbacks() // detiene la repetición por caracteres
+                listener?.onDeleteWord()
+                return
+            }
+        }
+
+        // 5) Comportamiento base: salir de la tecla cancela la pulsación.
+        val rect = keyRects[index].rect
+        val out = x < rect.left - touchSlop || x > rect.right + touchSlop ||
+                y < rect.top - touchSlop || y > rect.bottom + touchSlop
+        if (out) {
+            // El dedo se salió de la tecla: cancela la pulsación.
+            removeTouchCallbacks()
+            val released = pressedIndex
+            pressedIndex = -1
+            if (released >= 0) animateProgress(released, 0f)
+        }
+    }
+
+    private fun isLetterKey(key: Key): Boolean =
+        key.output.length == 1 && key.output[0].isLetter()
+
+    /** Arranca el modo escritura por gestos desde la tecla inicial. */
+    private fun beginGlide() {
+        glideActive = true
+        removeTouchCallbacks() // cancela la pulsación larga programada
+        trailFadeAnimator?.cancel()
+        trailFadeAnimator = null
+        trailPaint.alpha = TRAIL_ALPHA
+        trailPoints.clear()
+        trailPoints.add(PointF(glideStartX, glideStartY))
+        glideLetters.clear()
+        keyRects.getOrNull(glideLastKeyIndex)?.let { kr ->
+            if (isLetterKey(kr.key)) glideLetters.add(kr.key.output)
+        }
+        // Apaga el resaltado de la tecla inicial.
+        val initial = pressedIndex
+        pressedIndex = -1
+        if (initial >= 0) animateProgress(initial, 0f)
+        invalidate()
+    }
+
+    /** Añade un punto al rastro y registra las teclas atravesadas muestreando el segmento. */
+    private fun trackGlidePoint(x: Float, y: Float) {
+        val prev = trailPoints.last()
+        val segDx = x - prev.x
+        val segDy = y - prev.y
+        val distance = hypot(segDx.toDouble(), segDy.toDouble()).toFloat()
+        val steps = (distance / glideSampleStepPx).toInt().coerceAtLeast(1)
+        for (i in 1..steps) {
+            val sx = prev.x + segDx * i / steps
+            val sy = prev.y + segDy * i / steps
+            val idx = findKeyIndex(sx, sy)
+            if (idx >= 0 && idx != glideLastKeyIndex) {
+                glideLastKeyIndex = idx
+                val k = keyRects[idx].key
+                if (k.type == KeyType.CHARACTER && isLetterKey(k)) {
+                    if (glideLetters.lastOrNull() != k.output) glideLetters.add(k.output)
+                }
+            }
+        }
+        trailPoints.add(PointF(x, y))
+        invalidate()
+    }
+
+    /** Desvanece el rastro tras levantar el dedo. */
+    private fun startTrailFade() {
+        trailFadeAnimator?.cancel()
+        val animator = ValueAnimator.ofFloat(1f, 0f).apply {
+            duration = 180L
+            addUpdateListener {
+                trailPaint.alpha = (TRAIL_ALPHA * (it.animatedValue as Float)).toInt()
+                invalidate()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    trailPoints.clear()
+                    trailFadeAnimator = null
+                    invalidate()
+                }
+            })
+        }
+        trailFadeAnimator = animator
+        animator.start()
     }
 
     private fun onPressEnded() {
         removeTouchCallbacks()
         val index = pressedIndex
         touchActive = false
+
+        if (glideActive) {
+            glideActive = false
+            startTrailFade()
+            val letters = glideLetters.toList()
+            glideLetters.clear()
+            pressedIndex = -1
+            if (letters.isNotEmpty()) listener?.onGlideFinished(letters)
+            return
+        }
+
+        if (spaceSwipeUsed) {
+            // Fue un gesto de cursor: no inserta espacio.
+            spaceSwipeUsed = false
+            spaceSwipeActive = false
+            if (index >= 0) animateProgress(index, 0f)
+            pressedIndex = -1
+            return
+        }
 
         if (popupActive) {
             val candidate = popupCandidates.getOrNull(popupSelected)
@@ -519,6 +736,14 @@ class KeyboardView @JvmOverloads constructor(
     // ------------------------------------------------------------------ //
     // Animación de pulsación
     // ------------------------------------------------------------------ //
+
+    private companion object {
+        const val GLIDE_START_DISTANCE_DP = 16f
+        const val CURSOR_STEP_DP = 22f
+        const val DELETE_WORD_SLIDE_DP = 52f
+        const val GLIDE_SAMPLE_STEP_DP = 7f
+        const val TRAIL_ALPHA = 100
+    }
 
     private fun animateProgress(index: Int, target: Float) {
         animators[index]?.cancel()

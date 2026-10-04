@@ -68,4 +68,5 @@
 
     <!-- Vista previa en Ajustes -->
     <string name="preview_caption">Vista previa del teclado</string>
+    <string name="pref_glide_typing">Escribir deslizando el dedo</string>
 </resources>

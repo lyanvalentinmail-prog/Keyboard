@@ -21,6 +21,8 @@ data class AtlasSettings(
     val customTextSizeSp: Float? = null,
     val keyboardHeightDp: Int = 240,
     val language: String = "es",
+    /** Escritura por gestos (deslizar sobre las letras) y gestos de cursor/borrado. */
+    val glideTyping: Boolean = true,
     /** Estilo tipográfico activo para el texto escrito ("normal" por defecto). */
     val textStyleId: String = "normal"
 )

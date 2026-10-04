@@ -39,6 +39,7 @@ class SettingsRepository(private val context: Context) {
         private val KEY_KEYBOARD_HEIGHT = intPreferencesKey("keyboard_height_dp")
         private val KEY_LANGUAGE = stringPreferencesKey("language")
         private val KEY_TEXT_STYLE = stringPreferencesKey("text_style_id")
+        private val KEY_GLIDE_TYPING = booleanPreferencesKey("glide_typing")
 
         const val MIN_HEIGHT_DP = 200
         const val MAX_HEIGHT_DP = 320
@@ -65,7 +66,8 @@ class SettingsRepository(private val context: Context) {
             customTextSizeSp = (p[KEY_CUSTOM_TEXT_SIZE] ?: NO_FLOAT).toNullableFloat(),
             keyboardHeightDp = (p[KEY_KEYBOARD_HEIGHT] ?: 240).coerceIn(MIN_HEIGHT_DP, MAX_HEIGHT_DP),
             language = p[KEY_LANGUAGE] ?: "es",
-            textStyleId = p[KEY_TEXT_STYLE] ?: "normal"
+            textStyleId = p[KEY_TEXT_STYLE] ?: "normal",
+            glideTyping = p[KEY_GLIDE_TYPING] ?: true
         )
     }
 
@@ -94,6 +96,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setSuggestionsEnabled(value: Boolean) {
         context.atlasDataStore.edit { it[KEY_SUGGESTIONS] = value }
+    }
+
+    suspend fun setGlideTyping(value: Boolean) {
+        context.atlasDataStore.edit { it[KEY_GLIDE_TYPING] = value }
     }
 
     suspend fun setShowNumberRow(value: Boolean) {

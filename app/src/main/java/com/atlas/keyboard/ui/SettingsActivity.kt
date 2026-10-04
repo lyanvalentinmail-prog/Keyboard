@@ -125,6 +125,7 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<SwitchCompat>(R.id.switch_auto_caps).isChecked = s.autoCaps
         findViewById<SwitchCompat>(R.id.switch_auto_correct).isChecked = s.autoCorrect
         findViewById<SwitchCompat>(R.id.switch_suggestions).isChecked = s.suggestionsEnabled
+        findViewById<SwitchCompat>(R.id.switch_glide_typing).isChecked = s.glideTyping
         findViewById<SwitchCompat>(R.id.switch_number_row).isChecked = s.showNumberRow
 
         findViewById<SeekBar>(R.id.seek_vibration).apply {
@@ -205,6 +206,9 @@ class SettingsActivity : AppCompatActivity() {
         }
         findViewById<SwitchCompat>(R.id.switch_suggestions).setOnCheckedChangeListener { _, checked ->
             persist { repo.setSuggestionsEnabled(checked) }
+        }
+        findViewById<SwitchCompat>(R.id.switch_glide_typing).setOnCheckedChangeListener { _, checked ->
+            persist { repo.setGlideTyping(checked) }
         }
         findViewById<SwitchCompat>(R.id.switch_number_row).setOnCheckedChangeListener { _, checked ->
             persist { repo.setShowNumberRow(checked) }

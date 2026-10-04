@@ -19,6 +19,9 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 - Teclas especiales con **iconos vectoriales** (⇧ ⇪ ⌫ ↵) teñidos según el tema activo.
 - **Barra de herramientas superior** con accesos directos: ⚙ configuración, 😀 emojis, 📋 portapapeles y 🅰 fuentes de texto. La fila inferior queda limpia (`?123 , ␣ . ↵`), alineada con las filas de letras.
 - **Doble espacio → punto y espacio**: al pulsar espacio dos veces seguidas tras una palabra se inserta `. ` automáticamente (como Gboard) y se activan las mayúsculas.
+- **Escritura por gestos (swipe)**: desliza el dedo por las letras sin levantarlo y el teclado reconoce la palabra por el rastro (100 % local, sobre el diccionario integrado). El trazo se dibuja con el color de acento y se desvanece al soltar.
+- **Cursor deslizante**: arrastra el dedo horizontalmente sobre la **barra espaciadora** para mover el cursor con precisión.
+- **Borrado por palabras**: desliza hacia la izquierda desde `⌫` para borrar la palabra anterior de una vez.
 - **Fuentes de texto estilizadas** (Unicode, sin red): Negrita, Cursiva, Negrita cursiva, Monoespaciada, Manuscrita, Gótica, Doble trazo, Circulares y Cuadrados — se insertan mientras escribes en cualquier app, y las sugerencias/autocorrección siguen funcionando sobre el texto estilizado.
 - Mayúsculas, minúsculas, bloqueo de mayúsculas (doble toque o pulsación larga en `⇧`).
 - Retroceso con **repetición** al mantener pulsado (`⌫`).
@@ -55,6 +58,7 @@ completo que el sistema reconoce en **Ajustes → Idiomas y teclados**.
 - Vibrar al pulsar + intensidad de vibración.
 - Sonido al pulsar.
 - Mayúsculas automáticas, autocorrección, sugerencias.
+- **Escritura por gestos** activable/desactivable.
 - Fila numérica, altura del teclado, tema, idioma.
 - Secciones separadas visualmente con divisores.
 - Sección de **privacidad** que explica el procesamiento 100 % local.

@@ -12,6 +12,7 @@ import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -238,6 +239,7 @@ class AtlasInputMethodService : InputMethodService() {
         }
 
         keyboard.setTheme(theme)
+        keyboard.glideEnabled = settings.glideTyping
         emojiPanel?.applyTheme(theme)
         clipboardPanel?.applyTheme(theme)
         textStylePanel?.applyTheme(theme)
@@ -686,6 +688,64 @@ class AtlasInputMethodService : InputMethodService() {
         override fun onEmojiRequested() = showPanel(KeyboardMode.EMOJI)
 
         override fun onClipboardRequested() = showPanel(KeyboardMode.CLIPBOARD)
+
+        override fun onGlideFinished(letters: List<String>) {
+            val ic = currentInputConnection ?: return
+            val trace = letters.joinToString("")
+            if (trace.isEmpty()) return
+            if (!textFeaturesAllowed || trace.length < 2) {
+                // Campos seguros o trazo mínimo: inserta literal.
+                trace.forEach { onTextCommit(it.toString()) }
+                return
+            }
+            commitCurrentWord(ic, applyAutoCorrect = false)
+            val match = suggestionEngine.bestGlideMatch(trace) ?: trace
+            val styled = activeTextStyle.transform(capitalizeLike(trace, match))
+            ic.commitText("$styled ", 1)
+            if (shiftState == ShiftState.ON) {
+                shiftState = ShiftState.OFF
+                rebuildKeyboard()
+            }
+            evaluateAutoCaps()
+            updateSuggestions()
+        }
+
+        override fun onCursorMove(steps: Int) {
+            if (steps == 0) return
+            val code = if (steps > 0) KeyEvent.KEYCODE_DPAD_RIGHT else KeyEvent.KEYCODE_DPAD_LEFT
+            repeat(kotlin.math.abs(steps)) { sendDownUpKeyEvents(code) }
+            // El cursor cambió de sitio: la palabra en composición deja de ser válida.
+            currentWord.setLength(0)
+            composingActive = false
+            updateSuggestions()
+        }
+
+        override fun onDeleteWord() {
+            val ic = currentInputConnection ?: return
+            if (composingActive && currentWord.isNotEmpty()) {
+                // Con composición activa, el gesto borra la palabra entera.
+                currentWord.setLength(0)
+                ic.commitText("", 1)
+                composingActive = false
+                updateSuggestions()
+                return
+            }
+            val before = ic.getTextBeforeCursor(48, 0)?.toString().orEmpty()
+            if (before.isEmpty()) return
+            var i = before.length
+            while (i > 0 && before[i - 1].isWhitespace()) i--
+            while (i > 0 && !before[i - 1].isWhitespace()) i--
+            val toDelete = before.length - i
+            if (toDelete > 0) {
+                // No corta pares subrogados (emojis) por la mitad.
+                val safeDelete = if (i < before.length &&
+                    Character.isLowSurrogate(before[i]) && i > 0
+                ) toDelete + 1 else toDelete
+                ic.deleteSurroundingText(safeDelete, 0)
+            }
+            syncCurrentWordFromCursor()
+            updateSuggestions()
+        }
 
         override fun onKeyFeedback(type: KeyType) {
             if (settings.soundEnabled) {

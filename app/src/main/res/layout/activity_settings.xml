@@ -125,6 +125,16 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
+        <LinearLayout style="@style/AtlasSwitchRow">
+            <TextView
+                style="@style/AtlasRowLabel"
+                android:text="@string/pref_glide_typing" />
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_glide_typing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
         <View style="@style/AtlasDivider" />
 
         <!-- ===== Apariencia ===== -->
